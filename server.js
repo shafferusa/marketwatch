@@ -14,7 +14,23 @@ app.use((req, res, next) => {
   res.setHeader('Permissions-Policy', 'geolocation=(), camera=(), microphone=()');
   next();
 });
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h', etag: true }));
+const BUILD_VERSION = '3.0.0';
+
+app.use(express.static(path.join(__dirname, 'public'), {
+  etag: true,
+  setHeaders(res, filePath) {
+    if (/\.(?:html|js|css)$/.test(filePath) || filePath.endsWith('sw.js') || filePath.endsWith('manifest.webmanifest')) {
+      res.setHeader('Cache-Control', 'no-store, max-age=0');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    }
+  }
+}));
+
+app.get('/api/version', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({ version: BUILD_VERSION });
+});
 
 const ALPACA_BASE = 'https://data.alpaca.markets';
 const API_KEY = process.env.ALPACA_API_KEY_ID;

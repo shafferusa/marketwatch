@@ -1,6 +1,8 @@
 const DEFAULT_WATCHLIST = ['SPY', 'QQQ', 'US2Y', 'US10Y', 'US30Y', 'USDJPY=X', 'CL=F', 'GC=F', 'NVDA', 'AMZN', 'META', 'TSLA'];
-const STORAGE_KEY = 'tablet-market-watcher-symbols-v2';
-const LEGACY_STORAGE_KEY = 'tablet-market-watcher-symbols-v1';
+const BUILD_VERSION = '3.0.0';
+const STORAGE_KEY = 'tablet-market-watcher-symbols-v3';
+const PREVIOUS_STORAGE_KEYS = ['tablet-market-watcher-symbols-v2', 'tablet-market-watcher-symbols-v1'];
+const REQUIRED_MULTI_ASSET = ['US2Y', 'US10Y', 'US30Y', 'USDJPY=X', 'CL=F', 'GC=F'];
 const QUOTE_REFRESH_MS = 3000;
 const CHART_REFRESH_MS = 15000;
 
@@ -18,8 +20,9 @@ const els = {
 const ALIASES = {
   '2Y': 'US2Y', 'UST2Y': 'US2Y', '10Y': 'US10Y', 'UST10Y': 'US10Y', '30Y': 'US30Y', 'UST30Y': 'US30Y',
   'USDJPY': 'USDJPY=X', 'USD/JPY': 'USDJPY=X', 'EURUSD': 'EURUSD=X', 'EUR/USD': 'EURUSD=X',
-  'GBPUSD': 'GBPUSD=X', 'GBP/USD': 'GBPUSD=X', 'WTI': 'CL=F', 'OIL': 'CL=F', 'CL': 'CL=F',
-  'GOLD': 'GC=F', 'GC': 'GC=F', 'SPX': '^GSPC', 'DOW': '^DJI', 'DJI': '^DJI', 'NASDAQ': '^IXIC',
+  'GBPUSD': 'GBPUSD=X', 'GBP/USD': 'GBPUSD=X', 'USDJPYX': 'USDJPY=X', 'EURUSDX': 'EURUSD=X', 'GBPUSDX': 'GBPUSD=X',
+  'WTI': 'CL=F', 'OIL': 'CL=F', 'CL': 'CL=F', 'CLF': 'CL=F',
+  'GOLD': 'GC=F', 'GC': 'GC=F', 'GCF': 'GC=F', 'SPX': '^GSPC', 'DOW': '^DJI', 'DJI': '^DJI', 'NASDAQ': '^IXIC',
   'NDX': '^NDX', 'RUT': '^RUT', 'VIX': '^VIX'
 };
 
@@ -45,12 +48,19 @@ function cleanTicker(value) {
 function loadSymbols() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (Array.isArray(saved)) return [...new Set(saved.map(cleanTicker).filter(Boolean))].slice(0, 30);
-    const legacy = JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY));
-    if (Array.isArray(legacy) && legacy.length) {
-      const migrated = [...new Set(legacy.map(cleanTicker).filter(Boolean))].slice(0, 30);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
-      return migrated;
+    if (Array.isArray(saved) && saved.length) {
+      return [...new Set(saved.map(cleanTicker).filter(Boolean))].slice(0, 30);
+    }
+
+    for (const key of PREVIOUS_STORAGE_KEYS) {
+      const prior = JSON.parse(localStorage.getItem(key));
+      if (!Array.isArray(prior) || !prior.length) continue;
+      const migrated = [...new Set(prior.map(cleanTicker).filter(Boolean))];
+      for (const required of REQUIRED_MULTI_ASSET) {
+        if (!migrated.includes(required) && migrated.length < 30) migrated.push(required);
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated.slice(0, 30)));
+      return migrated.slice(0, 30);
     }
   } catch {}
   return [...DEFAULT_WATCHLIST];
@@ -350,6 +360,22 @@ els.chartCanvas.addEventListener('pointermove', handleChartPointer); els.chartCa
 els.chartCanvas.addEventListener('pointerleave', clearChartPointer); els.chartCanvas.addEventListener('pointerup', () => setTimeout(clearChartPointer, 800));
 window.addEventListener('resize', () => requestAnimationFrame(drawChart));
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { fetchQuotes(); if (activeSymbol) loadChart(true); } });
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(console.error);
+async function verifyBuildVersion() {
+  try {
+    const res = await fetch('/api/version', { cache: 'no-store' });
+    const data = await res.json();
+    const badge = document.getElementById('buildVersion');
+    if (badge) badge.textContent = `v${data.version || BUILD_VERSION}`;
+  } catch {
+    const badge = document.getElementById('buildVersion');
+    if (badge) badge.textContent = `v${BUILD_VERSION}`;
+  }
+}
 
-renderWatchlist(); updateClock(); setInterval(updateClock, 1000); fetchQuotes(); quoteTimer = setInterval(fetchQuotes, QUOTE_REFRESH_MS);
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register(`/sw.js?v=${BUILD_VERSION}`, { updateViaCache: 'none' })
+    .then(reg => reg.update())
+    .catch(console.error);
+}
+
+renderWatchlist(); updateClock(); setInterval(updateClock, 1000); verifyBuildVersion(); fetchQuotes(); quoteTimer = setInterval(fetchQuotes, QUOTE_REFRESH_MS);

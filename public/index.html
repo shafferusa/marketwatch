@@ -10,13 +10,13 @@
   <title>Market Watch</title>
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="apple-touch-icon" href="/icon-192.png" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=3.0.0" />
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
       <div>
-        <div class="eyebrow">SHAFFER TERMINAL</div>
+        <div class="eyebrow">SHAFFER TERMINAL <span id="buildVersion" class="build-version">v3.0.0</span></div>
         <h1>Market Watch</h1>
       </div>
       <div class="topbar-right">
@@ -100,10 +100,10 @@
       <div id="settingsList" class="settings-list"></div>
 
       <button id="wakeBtn" class="secondary-button full-width">Keep screen awake</button>
-      <div class="settings-note">Watchlist and drag order are saved only on this tablet/browser. Drag the ⠿ handle on the main screen to reorder.</div>
+      <div class="settings-note">Watchlist and drag order are saved only on this tablet/browser. Drag the ⠿ handle on the main screen to reorder. Macro symbols: US2Y, US10Y, US30Y, USD/JPY, CL=F, GC=F.</div>
     </div>
   </div>
 
-  <script src="/app.js" type="module"></script>
+  <script src="/app.js?v=3.0.0" type="module"></script>
 </body>
 </html>

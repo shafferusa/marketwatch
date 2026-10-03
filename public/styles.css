@@ -115,3 +115,6 @@ body.is-reordering { user-select: none; cursor: grabbing; }
   .chart-header { gap: 10px; }
   .back-button { width: 42px; height: 42px; }
 }
+
+.build-version { margin-left: 7px; padding: 2px 6px; border: 1px solid var(--border); border-radius: 999px; font-size: 9px; letter-spacing: .06em; color: var(--accent); vertical-align: 1px; }
+.drag-handle { border-left: 1px solid rgba(255,255,255,.06); background: rgba(255,255,255,.018); }
