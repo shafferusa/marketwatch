@@ -33,7 +33,7 @@
         <div class="status-row">
           <div class="status-group">
             <span id="feedDot" class="status-dot"></span>
-            <span id="feedStatus">Connecting to IEX feed…</span>
+            <span id="feedStatus">Connecting to market feeds…</span>
           </div>
           <div id="lastRefresh" class="muted">—</div>
         </div>
@@ -51,7 +51,7 @@
           <button id="backBtn" class="back-button" aria-label="Back to watchlist">‹</button>
           <div class="chart-symbol-block">
             <div id="chartSymbol" class="chart-symbol">SPY</div>
-            <div id="chartFeed" class="muted small">IEX</div>
+            <div id="chartFeed" class="muted small">Market data</div>
           </div>
           <div class="chart-price-block">
             <div id="chartPrice" class="chart-price">—</div>
@@ -76,7 +76,7 @@
           <div id="chartTooltip" class="chart-tooltip hidden"></div>
         </div>
         <div class="chart-footer muted small">
-          Live quotes and historical bars: Alpaca IEX feed. Values may differ from consolidated SIP quotes.
+          Equities use Alpaca IEX. Treasury yields use CNBC/Tradeweb with FRED history. FX, indices and futures use Yahoo/CNBC market data and may be delayed.
         </div>
       </section>
     </main>
@@ -94,13 +94,13 @@
       </div>
 
       <form id="addForm" class="add-form">
-        <input id="tickerInput" autocomplete="off" autocapitalize="characters" maxlength="12" placeholder="Ticker (e.g. NVDA)" />
+        <input id="tickerInput" autocomplete="off" autocapitalize="characters" maxlength="16" placeholder="Symbol (NVDA, US10Y, USD/JPY, CL=F)" />
         <button type="submit" class="primary-button">Add</button>
       </form>
       <div id="settingsList" class="settings-list"></div>
 
       <button id="wakeBtn" class="secondary-button full-width">Keep screen awake</button>
-      <div class="settings-note">Watchlist changes are saved only on this tablet/browser.</div>
+      <div class="settings-note">Watchlist and drag order are saved only on this tablet/browser. Drag the ⠿ handle on the main screen to reorder.</div>
     </div>
   </div>
 

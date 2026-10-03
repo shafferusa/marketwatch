@@ -1,89 +1,79 @@
-# Shaffer Market Watch — Tablet PWA
+# Shaffer Market Watch v2
 
-A simple, tablet-first market monitor designed to sit open during the workday.
+Tablet-first installable market dashboard (PWA) for a Windows tablet/laptop, iPad, or Android tablet.
 
-## What it does
+## What changed in v2
 
-- Live watchlist prices using Alpaca's IEX market-data feed.
-- Price change in dollars and percent vs prior close.
-- Tap any ticker for a large touch-friendly chart.
-- Chart ranges: 1D, 5D, 1M, 3M, 6M, YTD, 1Y, 5Y.
-- Add/remove up to 30 tickers from the tablet. The list persists in that browser.
-- Installable to the tablet home screen as a PWA.
-- Optional Screen Wake Lock button to keep the display on when the browser supports it.
-- API credentials remain server-side and are never sent to the browser.
+- Security/fund/index name now appears under every symbol instead of the old “IEX · tap for chart” text.
+- Drag-and-drop reordering from the main watchlist using the ⠿ handle. Works with mouse and touch; order persists locally.
+- Mixed asset watchlist (up to 30 symbols):
+  - U.S. equities/ETFs via Alpaca IEX.
+  - Actual Treasury yields: `US2Y`, `US10Y`, `US30Y` (current quote via CNBC/Tradeweb; historical daily series via FRED).
+  - Spot FX such as `USDJPY=X` (you can also type `USD/JPY`).
+  - Commodity futures including `CL=F` (WTI crude) and `GC=F` (gold), plus `SI=F`, `HG=F`, and `NG=F`.
+  - Major indices such as `SPX`, `DJI`, `NASDAQ`, `NDX`, `RUT`, and `VIX`.
+- Asset-aware formatting: Treasury yields show %, rate changes show basis points, FX is not shown with a dollar sign, indices are plain index points.
+- Charts continue to support 1D, 5D, 1M, 3M, 6M, YTD, 1Y, and 5Y.
 
-Default watchlist: SPY, QQQ, AAPL, MSFT, NVDA, AMZN, META, TSLA.
+## Useful symbols
 
-## Data note
+### Rates
+- `US2Y` — U.S. Treasury 2-Year Yield
+- `US10Y` — U.S. Treasury 10-Year Yield
+- `US30Y` — U.S. Treasury 30-Year Yield
 
-The default feed is Alpaca IEX. It is live, but it is not the same as the full consolidated SIP tape, so a quote can differ from what a brokerage terminal shows. Alpaca's paid data tier can provide full SIP coverage if you later want it.
+### FX
+- `USDJPY=X` or `USD/JPY`
+- `EURUSD=X` or `EUR/USD`
+- `GBPUSD=X` or `GBP/USD`
+- `USDCHF=X`
+- `USDCAD=X`
+- `AUDUSD=X`
 
-## Run locally
+### Futures
+- `CL=F` — WTI Crude Oil Futures (front month)
+- `GC=F` — Gold Futures (front month)
+- `SI=F` — Silver Futures
+- `HG=F` — Copper Futures
+- `NG=F` — Natural Gas Futures
 
-Requirements: Node.js 20+ and a free Alpaca account/API key.
+### Indices
+- `SPX` — S&P 500
+- `DJI` — Dow Jones Industrial Average
+- `NASDAQ` — Nasdaq Composite
+- `NDX` — Nasdaq-100
+- `RUT` — Russell 2000
+- `VIX` — CBOE Volatility Index
+
+## Render configuration
+
+Keep the same Render Web Service you already created.
+
+Build command:
 
 ```bash
 npm install
-export ALPACA_API_KEY_ID="..."
-export ALPACA_API_SECRET_KEY="..."
-npm start
 ```
 
-Then open `http://localhost:3000`.
-
-On Windows PowerShell:
-
-```powershell
-$env:ALPACA_API_KEY_ID="..."
-$env:ALPACA_API_SECRET_KEY="..."
-npm start
-```
-
-## Put it on the tablet
-
-The intended setup is to deploy this small Node app to a private HTTPS host (Render, Railway, Fly.io, your own VPS, etc.). Configure these two environment variables on the host:
-
-- `ALPACA_API_KEY_ID`
-- `ALPACA_API_SECRET_KEY`
-
-The host should run:
+Start command:
 
 ```bash
-npm install
 npm start
 ```
 
-After it is online:
+Environment variables:
 
-### iPad
-1. Open the HTTPS URL in Safari.
-2. Tap Share.
-3. Tap **Add to Home Screen**.
-4. Launch **Market Watch** from the new icon.
-
-### Android tablet
-1. Open the HTTPS URL in Chrome.
-2. Open the Chrome menu.
-3. Tap **Install app** or **Add to Home screen**.
-4. Launch **Market Watch** from the new icon.
-
-## Customize defaults before deployment
-
-Edit this line near the top of `public/app.js`:
-
-```js
-const DEFAULT_WATCHLIST = ['SPY', 'QQQ', 'AAPL', 'MSFT', 'NVDA', 'AMZN', 'META', 'TSLA'];
+```text
+ALPACA_API_KEY_ID=your_key
+ALPACA_API_SECRET_KEY=your_secret
 ```
 
-You do not have to edit the code later. Tickers can be added and removed directly from the tablet settings sheet.
+Do not commit the actual key or secret to GitHub.
 
-## Architecture
+## Updating the existing deployment
 
-- `server.js` — Express server and secure Alpaca proxy.
-- `public/index.html` — tablet UI.
-- `public/app.js` — watchlist polling, chart logic, settings, PWA behavior.
-- `public/styles.css` — responsive dark terminal styling.
-- `public/manifest.webmanifest` + `public/sw.js` — installable PWA shell.
+Replace the existing repository files with this v2 package and commit to the same GitHub branch. Render should automatically redeploy. If your installed PWA appears stale after the deploy, close/reopen it once; v2 uses a new service-worker cache version.
 
-Quotes refresh every 2.5 seconds in one batched request. Intraday charts refresh every 15 seconds while open.
+## Data notes
+
+Alpaca IEX provides the live U.S. equity/ETF feed used by the original app. Treasury current yields are read from CNBC/Tradeweb and historical Treasury charts use Federal Reserve (FRED) daily constant-maturity series. FX, index, and most futures chart data use Yahoo Finance’s public chart feed; those feeds can be delayed and are not a substitute for a licensed professional exchange feed. `CL=F` and `GC=F` represent rolling front-month futures, so the underlying contract changes as the market rolls forward.
