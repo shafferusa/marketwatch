@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0d12" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Market Watch" />
+  <title>Market Watch</title>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">SHAFFER TERMINAL</div>
+        <h1>Market Watch</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="clock-wrap">
+          <div id="clock" class="clock">--:--:--</div>
+          <div id="date" class="date"></div>
+        </div>
+        <button id="settingsBtn" class="icon-button" aria-label="Watchlist settings">⋯</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="watchScreen" class="screen active">
+        <div class="status-row">
+          <div class="status-group">
+            <span id="feedDot" class="status-dot"></span>
+            <span id="feedStatus">Connecting to IEX feed…</span>
+          </div>
+          <div id="lastRefresh" class="muted">—</div>
+        </div>
+
+        <div id="watchlist" class="watchlist" aria-live="polite"></div>
+
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-title">Your watchlist is empty.</div>
+          <button id="emptyAddBtn" class="primary-button">Add a ticker</button>
+        </div>
+      </section>
+
+      <section id="chartScreen" class="screen chart-screen">
+        <div class="chart-header">
+          <button id="backBtn" class="back-button" aria-label="Back to watchlist">‹</button>
+          <div class="chart-symbol-block">
+            <div id="chartSymbol" class="chart-symbol">SPY</div>
+            <div id="chartFeed" class="muted small">IEX</div>
+          </div>
+          <div class="chart-price-block">
+            <div id="chartPrice" class="chart-price">—</div>
+            <div id="chartChange" class="chart-change">—</div>
+          </div>
+        </div>
+
+        <div id="rangeBar" class="range-bar">
+          <button data-range="1D" class="range active">1D</button>
+          <button data-range="5D" class="range">5D</button>
+          <button data-range="1M" class="range">1M</button>
+          <button data-range="3M" class="range">3M</button>
+          <button data-range="6M" class="range">6M</button>
+          <button data-range="YTD" class="range">YTD</button>
+          <button data-range="1Y" class="range">1Y</button>
+          <button data-range="5Y" class="range">5Y</button>
+        </div>
+
+        <div class="chart-card">
+          <div id="chartLoader" class="chart-loader">Loading chart…</div>
+          <canvas id="chartCanvas"></canvas>
+          <div id="chartTooltip" class="chart-tooltip hidden"></div>
+        </div>
+        <div class="chart-footer muted small">
+          Live quotes and historical bars: Alpaca IEX feed. Values may differ from consolidated SIP quotes.
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="settingsPanel" class="sheet-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title-row">
+        <div>
+          <div class="eyebrow">SETTINGS</div>
+          <h2>Watchlist</h2>
+        </div>
+        <button id="closeSettings" class="icon-button" aria-label="Close settings">×</button>
+      </div>
+
+      <form id="addForm" class="add-form">
+        <input id="tickerInput" autocomplete="off" autocapitalize="characters" maxlength="12" placeholder="Ticker (e.g. NVDA)" />
+        <button type="submit" class="primary-button">Add</button>
+      </form>
+      <div id="settingsList" class="settings-list"></div>
+
+      <button id="wakeBtn" class="secondary-button full-width">Keep screen awake</button>
+      <div class="settings-note">Watchlist changes are saved only on this tablet/browser.</div>
+    </div>
+  </div>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
