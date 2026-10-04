@@ -1,10 +1,10 @@
 {
   "name": "shaffer-terminal",
-  "version": "7.0.0",
+  "version": "8.0.0",
   "private": true,
   "description": "Tablet-first multi-asset Shaffer Terminal with markets, multi-view, intelligence and learning briefs.",
   "type": "module",
   "engines": {"node": ">=20"},
-  "scripts": {"start": "node server-v7.js", "dev": "node --watch server-v7.js"},
+  "scripts": {"start": "node server-v8.js", "dev": "node --watch server-v8.js"},
   "dependencies": {"express": "^5.1.0"}
 }
