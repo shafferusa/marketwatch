@@ -10,13 +10,13 @@
   <title>Markets</title>
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="apple-touch-icon" href="/icon-192.png" />
-  <link rel="stylesheet" href="/styles.css?v=5.0.0" />
+  <link rel="stylesheet" href="/styles.css?v=5.1.0" />
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
       <div>
-        <div class="eyebrow">SHAFFER TERMINAL <span id="buildVersion" class="build-version">v5.0.0</span></div>
+        <div class="eyebrow">SHAFFER TERMINAL <span id="buildVersion" class="build-version">v5.1.0</span></div>
         <h1>Markets</h1>
       </div>
       <div class="topbar-right">
@@ -76,7 +76,7 @@
           <div id="chartTooltip" class="chart-tooltip hidden"></div>
         </div>
         <div class="chart-footer muted small">
-          Equities/ETFs use Alpaca IEX. Treasury yields, SOFR, breakeven inflation and credit spreads use public/FRED data. FX, DXY, crypto, indices and futures use public market feeds and may be delayed. MOVE uses the ICE BofA MOVE index via Yahoo/public feeds.
+          Equities/ETFs use Alpaca IEX. Treasury yields, SOFR, curve spreads, real yields, breakeven inflation and credit spreads use public/FRED data. FX, DXY, crypto, indices and futures use public market feeds and may be delayed. MOVE uses the ICE BofA MOVE index via Yahoo/public feeds.
         </div>
       </section>
     </main>
@@ -94,16 +94,16 @@
       </div>
 
       <form id="addForm" class="add-form">
-        <input id="tickerInput" autocomplete="off" autocapitalize="characters" maxlength="20" placeholder="Symbol (MAGS, US5Y, SOFR, DXY, BTC, ES=F)" />
+        <input id="tickerInput" autocomplete="off" autocapitalize="characters" maxlength="20" placeholder="Symbol (MAGS, SKEW, REAL10Y, AUD/USD, HG=F)" />
         <button type="submit" class="primary-button">Add</button>
       </form>
       <div id="settingsList" class="settings-list"></div>
 
       <button id="wakeBtn" class="secondary-button full-width">Keep screen awake</button>
-      <div class="settings-note">Watchlist order is saved on this device. Use the small ▲/▼ controls to reorder. Up to 50 symbols are supported. Macro aliases include SPX, NDX, VIX, US2Y/5Y/10Y/30Y, MOVE, SOFR, BE10Y, IG OAS, HY OAS, DXY, BTC, USD/CNH, CL=F and GC=F.</div>
+      <div class="settings-note">Watchlist order is saved on this device. Use the small ▲/▼ controls to reorder. Up to 50 symbols are supported. Macro aliases include SPX, NDX, VIX, SKEW, US2Y/5Y/10Y/30Y, 2S10S, REAL10Y, MOVE, SOFR, BE10Y, IG OAS, HY OAS, DXY, BTC, AUD/USD, USD/CNH, FTSE, N225 and CSI300.</div>
     </div>
   </div>
 
-  <script src="/app.js?v=5.0.0" type="module"></script>
+  <script src="/app.js?v=5.1.0" type="module"></script>
 </body>
 </html>
