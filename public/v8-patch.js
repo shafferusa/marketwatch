@@ -36,8 +36,13 @@ function fitChart(){if(document.body.dataset.page!=='chart')return;const card=$(
 new MutationObserver(()=>{normalizeTitle();if(document.body.dataset.page==='chart')setTimeout(fitChart,20)}).observe(document.body,{attributes:true,attributeFilter:['data-page']});
 addEventListener('resize',fitChart);addEventListener('orientationchange',()=>setTimeout(fitChart,120));
 
+// v7 already renders the Markets board from one batched quote request. Mark those rows current
+// before the v8 editor enhancer starts so it does not immediately repeat one quote call per row.
+function primeMarketRows(){let hs={};try{hs=JSON.parse(localStorage.getItem('tablet-market-watcher-horizons-v6')||'{}')||{}}catch{}$$('#watchlist .watch-row').forEach(row=>{const s=row.dataset.symbol;if(s)row.dataset.paintedSymbol=`${s}|${hs[s]||'1D'}`})}
+primeMarketRows();
+
 await import('./v8-markets.js?v=8.0.2');
-await import('./v8-market-sparklines.js?v=8.0.2');
+await import('./v8-market-sparklines.js?v=8.0.2-pit1');
 await import('./v8-chart.js?v=8.0.2');
 await import('./v8-multi.js?v=8.0.2');
 if('serviceWorker'in navigator)navigator.serviceWorker.register(`/sw.js?v=${VERSION}`,{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
