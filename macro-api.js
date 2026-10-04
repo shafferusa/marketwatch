@@ -66,22 +66,6 @@ async function fred(meta) {
   return {rows:transformRows(rows, meta),source:meta.source || 'FRED',sourceUrl:`https://fred.stlouisfed.org/series/${meta.fred}`};
 }
 
-// A licensed provider can supply deeper PMI history. Keys stay on the server.
-async function tradingEconomics(meta) {
-  const u = new URL(`https://api.tradingeconomics.com/historical/country/united%20states/indicator/${encodeURIComponent(meta.te)}`);
-  u.search = new URLSearchParams({c:process.env.TRADING_ECONOMICS_API_KEY,f:'json'});
-  const j = await request(u,'json');
-  if (!Array.isArray(j)) throw new Error('PMI provider returned an invalid response');
-  const rows = j.flatMap(x => Number.isFinite(Number(x.Value)) && /^\d{4}-\d{2}-\d{2}/.test(x.DateTime) ? [{date:x.DateTime.slice(0,10),value:Number(x.Value)}] : []).sort((a,b)=>a.date.localeCompare(b.date));
-  if (!rows.length) throw new Error('No PMI observations returned');
-  return {rows,source:'ISM / Trading Economics',sourceUrl:'https://www.ismworld.org/supply-management-news-and-reports/reports/ism-pmi-reports/'};
-}
-
-async function pmi(meta) {
-  if (process.env.TRADING_ECONOMICS_API_KEY) return tradingEconomics(meta);
-  throw new Error('PMI data requires a licensed API connection');
-}
-
 export function parseICS(text, source, sourceUrl) {
   const unfolded = text.replace(/\r?\n[ \t]/g,'');
   return [...unfolded.matchAll(/BEGIN:VEVENT([\s\S]*?)END:VEVENT/g)].flatMap(m=>{
@@ -117,7 +101,7 @@ async function load(meta) {
   if (pending.has(meta.symbol)) return pending.get(meta.symbol);
   const p=(async()=>{
     try {
-      const data = await (meta.kind==='calendar'?calendar():meta.kind==='pmi'?pmi(meta):fred(meta));
+      const data = await (meta.kind==='calendar'?calendar():fred(meta));
       const result={...data,fetchedAt:Date.now(),stale:false}; cache.set(meta.symbol,result); return result;
     } catch(e) {
       if(old) return {...old,stale:true,error:e.message};

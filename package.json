@@ -1,6 +1,6 @@
 {
   "name": "shaffer-terminal",
-  "version": "8.1.0",
+  "version": "8.1.1",
   "private": true,
   "description": "Tablet-first multi-asset Shaffer Terminal with markets, multi-view, intelligence and learning briefs.",
   "type": "module",

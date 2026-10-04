@@ -37,13 +37,14 @@ test('Calendar unfolds lines, preserves Eastern time, and excludes cancellations
   assert.deepEqual(parseICS(input,'BLS','https://www.bls.gov/schedule/'),[{date:'2026-10-09',time:'08:30',timezone:'America/New_York',title:'Employment Situationcontinued',source:'BLS',sourceUrl:'https://www.bls.gov/schedule/'}]);
 });
 test('Catalog covers every requested item and Treasury maturity without ticker collisions',()=>{
-  assert.equal(MACRO_SERIES.length,34);assert.equal(new Set(MACRO_SERIES.map(x=>x.symbol)).size,34);
-  assert.deepEqual(MACRO_SERIES.filter(x=>x.number).map(x=>x.number),Array.from({length:25},(_,i)=>i+1));
+  assert.equal(MACRO_SERIES.length,32);assert.equal(new Set(MACRO_SERIES.map(x=>x.symbol)).size,32);
+  assert.deepEqual(MACRO_SERIES.filter(x=>x.number).map(x=>x.number),Array.from({length:25},(_,i)=>i+1).filter(n=>n!==22&&n!==23));
   for(const s of ['UST.1M','UST.3M','UST.6M','UST.1Y','UST.2Y','UST.5Y','UST.10Y','UST.30Y','UST.10-2'])assert.ok(MACRO_SERIES.find(x=>x.symbol===s));
 });
 test('API rejects unknown symbols and invalid horizons before reaching providers',async()=>{
   const handlers=new Map();registerMacro({get:(path,fn)=>handlers.set(path,fn)});
   const call=async(params,query)=>{let status=200,body;const res={status:n=>(status=n,res),json:j=>(body=j,res),set:()=>res};await handlers.get('/api/macro/series/:symbol')({params,query},res);return {status,body};};
   assert.equal((await call({symbol:'FAKE'},{horizon:'1Y'})).status,404);
+  for(const symbol of ['MAC.PMIMFG','MAC.PMISVC'])assert.equal((await call({symbol},{horizon:'1Y'})).status,404);
   assert.equal((await call({symbol:'MAC.CPI'},{horizon:'BAD'})).status,400);
 });

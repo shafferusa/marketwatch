@@ -21,8 +21,6 @@ export const MACRO_SERIES = [
   item(19,'MAC.FEDBS','Fed Balance Sheet','Total assets held by the Federal Reserve.','WALCL','$T','Weekly',{scale:.000001,source:'Federal Reserve / FRED'}),
   item(20,'MAC.LOANS','Bank Lending','Loans and leases outstanding at U.S. commercial banks.','TOTLL','$T','Weekly',{scale:.001,source:'Federal Reserve / FRED'}),
   item(21,'MAC.CREDIT','Corporate Credit Spread','Extra yield on high-yield corporate bonds over Treasuries, adjusted for options.','BAMLH0A0HYM2','% spread','Daily',{source:'ICE BofA / FRED'}),
-  item(22,'MAC.PMIMFG','Manufacturing PMI','ISM manufacturing survey; above 50 signals expansion, below 50 contraction.',null,'index','Monthly',{kind:'pmi',te:'ism manufacturing pmi',ism:'manufacturing'}),
-  item(23,'MAC.PMISVC','Services PMI','ISM services survey; above 50 signals expansion, below 50 contraction.',null,'index','Monthly',{kind:'pmi',te:'ism non manufacturing pmi',ism:'services'}),
   item(24,'MAC.SENT','Consumer Sentiment','University of Michigan household sentiment index; FRED publication is delayed.','UMCSENT','index','Monthly',{source:'University of Michigan / FRED',delayNote:'FRED publishes this series with a one-month delay.'}),
   item(25,'MAC.CALENDAR','Economic Release Calendar','Upcoming BLS and BEA reports; historical graph counts scheduled releases per day.',null,'releases','Event schedule',{kind:'calendar',decimals:0}),
   item(null,'UST.1M','1-Month Treasury Bill','Daily 1-month Treasury constant-maturity yield, investment basis.','DGS1MO','% yield','Daily',{decimals:3,source:'U.S. Treasury / FRED'}),
