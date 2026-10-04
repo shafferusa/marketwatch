@@ -11,8 +11,28 @@ function trimRows(box,{max=3}={}){if(!box)return;box.querySelectorAll('.search-r
 const globalResults=$('#globalSearchResults');if(globalResults){new MutationObserver(()=>trimRows(globalResults)).observe(globalResults,{childList:true,subtree:true});trimRows(globalResults)}
 const panelResults=$('#panelSearchResults');if(panelResults){new MutationObserver(()=>trimRows(panelResults)).observe(panelResults,{childList:true,subtree:true});trimRows(panelResults)}
 
+async function resolveFreshSearch(q){
+  const raw=String(q||'').trim(),upper=raw.toUpperCase();
+  if(!raw)return null;
+  try{
+    const r=await fetch(`/api/search?q=${encodeURIComponent(raw)}`,{cache:'no-store'}),j=await r.json(),rows=Array.isArray(j?.results)?j.results:[];
+    const exact=rows.find(x=>String(x?.symbol||'').toUpperCase()===upper||String(x?.displaySymbol||'').toUpperCase()===upper);
+    if(exact?.symbol)return exact.symbol;
+    if(/^[A-Z^][A-Z0-9.^=\-/]{0,23}$/.test(upper))return upper;
+    return rows[0]?.symbol||null;
+  }catch{
+    return /^[A-Z^][A-Z0-9.^=\-/]{0,23}$/.test(upper)?upper:null;
+  }
+}
+function clickGlobalSymbol(symbol){
+  if(!symbol||!globalResults)return;
+  const b=document.createElement('button');
+  b.type='button';b.className='search-result';b.dataset.resultSymbol=symbol;b.hidden=true;
+  globalResults.appendChild(b);b.click();b.remove();
+}
+
 const globalInput=$('#globalSearch');
-if(globalInput){globalInput.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();e.stopImmediatePropagation();trimRows(globalResults);const first=$('#globalSearchResults [data-result-symbol]');if(first){first.click();setTimeout(clearSearch,0)}else clearSearch()},true)}
+if(globalInput){globalInput.addEventListener('keydown',async e=>{if(e.key!=='Enter')return;e.preventDefault();e.stopImmediatePropagation();const q=e.currentTarget.value.trim();const symbol=await resolveFreshSearch(q);if(symbol)clickGlobalSymbol(symbol);else clearSearch()},true)}
 
 let origin=null;
 if(globalResults){globalResults.addEventListener('click',e=>{const r=e.target.closest('[data-result-symbol]');if(!r)return;window.__shafferChartCanonical=r.dataset.resultSymbol||null;const p=document.body.dataset.page||'markets';if(p!=='chart')origin={page:p,y:scrollY};document.body.classList.add('search-chart');setTimeout(clearSearch,0);requestAnimationFrame(()=>scrollTo(0,0))},true)}
@@ -35,8 +55,8 @@ addEventListener('resize',fitChart);addEventListener('orientationchange',()=>set
 function primeMarketRows(){let hs={};try{hs=JSON.parse(localStorage.getItem('tablet-market-watcher-horizons-v6')||'{}')||{}}catch{}$$('#watchlist .watch-row').forEach(row=>{const s=row.dataset.symbol;if(s)row.dataset.paintedSymbol=`${s}|${hs[s]||'1D'}`})}
 primeMarketRows();
 
-await import('./v8-markets.js?v=8.0.2');
-await import('./v8-market-sparklines.js?v=8.0.2-pit1');
+await import('./v8-markets.js?v=prod2');
+await import('./v8-market-sparklines.js?v=prod2');
 await import('./v8-chart.js?v=8.0.2');
 await import('./v8-multi.js?v=8.0.2');
-if('serviceWorker'in navigator)navigator.serviceWorker.register(`/sw.js?v=${VERSION}`,{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+if('serviceWorker'in navigator)navigator.serviceWorker.register(`/sw.js?v=prod2`,{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
