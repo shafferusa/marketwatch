@@ -1,0 +1,29 @@
+/* Production UI final alignment */
+#marketsPage>.status-row{
+  display:flex!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
+  min-height:31px!important;
+  margin:0 0 6px!important;
+  padding:0 0 0 4px!important;
+}
+#marketsPage .market-tools{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:8px!important;
+}
+#marketPreset{
+  grid-column:auto!important;
+  justify-self:auto!important;
+  align-self:center!important;
+  transform:none!important;
+  margin:0!important;
+  position:relative!important;
+  z-index:3!important;
+}
+.multi-toolbar{
+  justify-content:flex-start!important;
+  padding-left:4px!important;
+}
+#multiPreset{margin:0!important}
