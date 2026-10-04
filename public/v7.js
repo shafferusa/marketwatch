@@ -1,4 +1,4 @@
-import { initMacro } from './macro.js?v=3';
+import { initMacro } from './macro.js?v=4';
 const VERSION='7.0.0', MAX=60, REFRESH=10000;
 const DEFAULT=['^GSPC','^NDX','^DJI','VTI','MAGS','^VIX','^SKEW','US2Y','US5Y','US10Y','US30Y','2S10S','REAL10Y','MOVE','CL=F','NG=F','GC=F','HG=F','SOFR','BE10Y','DX-Y.NYB','BTC-USD','USDJPY=X','GBPUSD=X','EURUSD=X','AUDUSD=X','USDCNH=X','SMH','XLF','XLE','XAR','XLI','XLV','XLY','XLP','XLC','XLU','XLRE','CIBR','^FTSE','^N225','000300.SS','EEM','ACWI','IGOAS','HYOAS','ES=F','NQ=F','YM=F','NKD=F'];
 const HORIZONS=['CQ','1D','1W','1M','3M','1Y','3Y','5Y'];

@@ -38,7 +38,7 @@ test('Calendar unfolds lines, preserves Eastern time, and excludes cancellations
 });
 test('Catalog covers every requested item and Treasury maturity without ticker collisions',()=>{
   assert.equal(MACRO_SERIES.length,32);assert.equal(new Set(MACRO_SERIES.map(x=>x.symbol)).size,32);
-  assert.deepEqual(MACRO_SERIES.filter(x=>x.number).map(x=>x.number),Array.from({length:25},(_,i)=>i+1).filter(n=>n!==22&&n!==23));
+  assert.deepEqual(MACRO_SERIES.filter(x=>x.number).map(x=>x.number).sort((a,b)=>a-b),Array.from({length:25},(_,i)=>i+1).filter(n=>n!==22&&n!==23));
   for(const s of ['UST.1M','UST.3M','UST.6M','UST.1Y','UST.2Y','UST.5Y','UST.10Y','UST.30Y','UST.10-2'])assert.ok(MACRO_SERIES.find(x=>x.symbol===s));
 });
 test('API rejects unknown symbols and invalid horizons before reaching providers',async()=>{

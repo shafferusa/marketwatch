@@ -1,7 +1,7 @@
 import { initMacroCalendar } from './macro-calendar.js?v=1';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const KEY='shaffer-macro-horizons-v1', ORDER_KEY='shaffer-macro-order-v1';
+const KEY='shaffer-macro-horizons-v1', ORDER_KEY='shaffer-macro-order-v2';
 const HORIZONS=['CQ','1D','1W','1M','3M','6M','YTD','1Y','3Y','5Y','10Y','MAX'];
 const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))||fallback}catch{return fallback}};
 let horizons=read(KEY,{}),order=read(ORDER_KEY,[]),catalog=[],data=new Map(),loadedAt=0,loading=null,showPage,showHorizon,chartSymbol=null,chartSequence=0,chartData=null,returnY=0;

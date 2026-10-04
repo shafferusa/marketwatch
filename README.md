@@ -6,6 +6,7 @@ Installable multi-asset market dashboard for a Windows tablet/laptop.
 
 The Macro tab sits between Multi-View and Newspaper and uses the existing Markets controls and layout. Its catalog contains 23 economic indicators and nine Treasury series: 1-month, 3-month, 6-month and 1-year bills; 2-, 5-, 10- and 30-year yields; and the 10-year minus 2-year spread. Each row has a unique `MAC.*` or `UST.*` ticker, description, observation date, side graph and expanded chart. Individual and overall horizons are saved separately from Markets and Multi-View.
 
+- Default order: calendar; 2Y, 10Y, 30Y; GDP, CPI, PCE, PPI, Core CPI, Core PCE; remaining Treasuries; employment; remaining growth and consumer indicators; housing; Fed balance sheet, M2, bank lending and credit spreads. Rows can still be reordered and saved.
 - `GET /api/macro/catalog` returns the catalog and supported horizons.
 - `GET /api/macro/series/MAC.CPI?horizon=1Y` returns observations, units, source, publication period and horizon change. Supported horizons: `CQ`, `1D`, `1W`, `1M`, `3M`, `6M`, `YTD`, `1Y`, `3Y`, `5Y`, `10Y`, `MAX`.
 - Public FRED feeds supply economic and Treasury data. Optional `FRED_API_KEY` uses the official observations API instead. Year-over-year inflation and wage growth, monthly spending and retail growth, and monthly payroll changes are calculated from calendar-matched observations.
