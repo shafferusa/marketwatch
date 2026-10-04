@@ -11,12 +11,14 @@ if($('#pageTitle'))new MutationObserver(normalizeTitle).observe($('#pageTitle'),
 const titleNode=document.querySelector('title');if(titleNode)new MutationObserver(normalizeTitle).observe(titleNode,{childList:true,characterData:true,subtree:true});
 
 function clearSearch(){const i=$('#globalSearch'),b=$('#globalSearchResults'),c=$('#clearSearch');if(i)i.value='';c?.classList.add('hidden');if(b){b.classList.add('hidden');b.innerHTML=''}}
-function trimRows(box,{removeDirect=true,max=3}={}){if(!box)return;if(removeDirect){box.querySelectorAll('.search-result').forEach(r=>{const n=r.querySelector('.search-result-name')?.textContent?.trim(),t=r.querySelector('.search-result-type')?.textContent?.trim().toLowerCase();if(n==='Open symbol directly'||t==='symbol')r.remove()})}box.querySelectorAll('.search-result').forEach((r,i)=>{if(i>=max)r.remove()});if(!box.querySelector('.search-result'))box.classList.add('hidden')}
+function trimRows(box,{max=3}={}){if(!box)return;box.querySelectorAll('.search-result').forEach(r=>{const n=r.querySelector('.search-result-name')?.textContent?.trim(),t=r.querySelector('.search-result-type')?.textContent?.trim().toLowerCase();if(n==='Open symbol directly'||t==='symbol')r.remove()});box.querySelectorAll('.search-result').forEach((r,i)=>{if(i>=max)r.remove()});if(!box.querySelector('.search-result'))box.classList.add('hidden')}
 const globalResults=$('#globalSearchResults');if(globalResults){new MutationObserver(()=>trimRows(globalResults)).observe(globalResults,{childList:true,subtree:true});trimRows(globalResults)}
-const panelResults=$('#panelSearchResults');if(panelResults){new MutationObserver(()=>trimRows(panelResults,{removeDirect:panelResults.dataset.marketEdit!=='1',max:3})).observe(panelResults,{childList:true,subtree:true});trimRows(panelResults,{max:3})}
+const panelResults=$('#panelSearchResults');if(panelResults){new MutationObserver(()=>trimRows(panelResults)).observe(panelResults,{childList:true,subtree:true});trimRows(panelResults)}
 
 const globalInput=$('#globalSearch');
 if(globalInput){globalInput.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();e.stopImmediatePropagation();trimRows(globalResults);const first=$('#globalSearchResults [data-result-symbol]');if(first){first.click();setTimeout(clearSearch,0)}else clearSearch()},true)}
+
+document.addEventListener('keydown',e=>{const inp=e.target.closest?.('.mv-symbol-input');if(!inp||e.key!=='Enter')return;trimRows(panelResults);const first=panelResults?.querySelector('[data-result-symbol]');if(!first)return;e.preventDefault();e.stopImmediatePropagation();first.click()},true);
 
 let origin=null;
 if(globalResults){globalResults.addEventListener('click',e=>{const r=e.target.closest('[data-result-symbol]');if(!r)return;window.__shafferChartCanonical=r.dataset.resultSymbol||null;const p=document.body.dataset.page||'markets';if(p!=='chart')origin={page:p,y:scrollY};document.body.classList.add('search-chart');setTimeout(clearSearch,0);requestAnimationFrame(()=>scrollTo(0,0))},true)}
@@ -30,7 +32,7 @@ function commaPercentNode(root){if(!root)return;const walker=document.createTree
 function commaAll(){document.querySelectorAll('.change,.chart-change,.mv-change').forEach(commaPercentNode)}
 setInterval(commaAll,600);commaAll();
 
-function fitChart(){if(document.body.dataset.page!=='chart')return;const card=$('.chart-card');if(!card)return;requestAnimationFrame(()=>{const top=card.getBoundingClientRect().top,h=Math.max(235,Math.floor(innerHeight-top-10));card.style.setProperty('height',`${h}px`,'important');card.style.setProperty('min-height','0','important');scrollTo(0,0)})}
+function fitChart(){if(document.body.dataset.page!=='chart')return;const card=$('.chart-card');if(!card)return;requestAnimationFrame(()=>{const top=card.getBoundingClientRect().top,h=Math.max(220,Math.floor(innerHeight-top-8));card.style.setProperty('height',`${h}px`,'important');card.style.setProperty('min-height','0','important');scrollTo(0,0)})}
 new MutationObserver(()=>{normalizeTitle();if(document.body.dataset.page==='chart')setTimeout(fitChart,20)}).observe(document.body,{attributes:true,attributeFilter:['data-page']});
 addEventListener('resize',fitChart);addEventListener('orientationchange',()=>setTimeout(fitChart,120));
 
