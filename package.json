@@ -1,10 +1,10 @@
 {
-  "name": "tablet-market-watcher",
-  "version": "6.0.0",
+  "name": "shaffer-terminal",
+  "version": "7.0.0",
   "private": true,
-  "description": "Tablet-first multi-asset market watchlist with equities, rates, FX, indices, crypto and commodity futures.",
+  "description": "Tablet-first multi-asset Shaffer Terminal with markets, multi-view, intelligence and learning briefs.",
   "type": "module",
   "engines": {"node": ">=20"},
-  "scripts": {"start": "node server.js", "dev": "node --watch server.js"},
+  "scripts": {"start": "node server-v7.js", "dev": "node --watch server-v7.js"},
   "dependencies": {"express": "^5.1.0"}
 }
