@@ -6,6 +6,7 @@ const app = express();
 const port = Number(process.env.PORT || 3000);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const BUILD_VERSION = '4.0.0';
 
 app.disable('x-powered-by');
 app.use((req, res, next) => {
@@ -14,7 +15,6 @@ app.use((req, res, next) => {
   res.setHeader('Permissions-Policy', 'geolocation=(), camera=(), microphone=()');
   next();
 });
-const BUILD_VERSION = '3.0.0';
 
 app.use(express.static(path.join(__dirname, 'public'), {
   etag: true,
@@ -38,29 +38,58 @@ const API_SECRET = process.env.ALPACA_API_SECRET_KEY;
 const YAHOO_BASE = 'https://query1.finance.yahoo.com/v8/finance/chart';
 const CNBC_BASE = 'https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol';
 const FRED_BASE = 'https://fred.stlouisfed.org/graph/fredgraph.csv';
+const TRADINGVIEW_SCAN = 'https://scanner.tradingview.com/global/scan';
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/154 Safari/537.36';
 
 const quoteCache = new Map();
 const nameCache = new Map();
 
 const KNOWN_NAMES = {
-  SPY: 'SPDR S&P 500 ETF Trust', QQQ: 'Invesco QQQ Trust', DIA: 'SPDR Dow Jones Industrial Average ETF Trust',
-  IWM: 'iShares Russell 2000 ETF', RSP: 'Invesco S&P 500 Equal Weight ETF', MAGS: 'Roundhill Magnificent Seven ETF',
-  EEM: 'iShares MSCI Emerging Markets ETF', VGK: 'Vanguard FTSE Europe ETF', VXX: 'iPath Series B S&P 500 VIX Short-Term Futures ETN',
-  TIP: 'iShares TIPS Bond ETF', HYG: 'iShares iBoxx $ High Yield Corporate Bond ETF', LQD: 'iShares iBoxx $ Investment Grade Corporate Bond ETF',
-  UUP: 'Invesco DB US Dollar Index Bullish Fund', FXY: 'Invesco CurrencyShares Japanese Yen Trust', FXB: 'Invesco CurrencyShares British Pound Sterling Trust',
-  GLD: 'SPDR Gold Shares', USO: 'United States Oil Fund', CPER: 'United States Copper Index Fund', DBC: 'Invesco DB Commodity Index Tracking Fund',
-  SMH: 'VanEck Semiconductor ETF', XLF: 'Financial Select Sector SPDR Fund', XLE: 'Energy Select Sector SPDR Fund',
-  XAR: 'SPDR S&P Aerospace & Defense ETF', CIBR: 'First Trust Nasdaq Cybersecurity ETF',
-  AAPL: 'Apple Inc.', MSFT: 'Microsoft Corporation', NVDA: 'NVIDIA Corporation', AMZN: 'Amazon.com, Inc.', META: 'Meta Platforms, Inc.',
-  TSLA: 'Tesla, Inc.', GOOGL: 'Alphabet Inc. Class A', GOOG: 'Alphabet Inc. Class C', JPM: 'JPMorgan Chase & Co.',
-  AVGO: 'Broadcom Inc.', AMD: 'Advanced Micro Devices, Inc.', ORCL: 'Oracle Corporation', NFLX: 'Netflix, Inc.'
+  VTI: 'Vanguard Total Stock Market ETF',
+  EEM: 'iShares MSCI Emerging Markets ETF',
+  ACWI: 'iShares MSCI ACWI ETF',
+  SPY: 'SPDR S&P 500 ETF Trust',
+  QQQ: 'Invesco QQQ Trust',
+  DIA: 'SPDR Dow Jones Industrial Average ETF Trust',
+  IWM: 'iShares Russell 2000 ETF',
+  RSP: 'Invesco S&P 500 Equal Weight ETF',
+  SMH: 'VanEck Semiconductor ETF',
+  XLF: 'Financial Select Sector SPDR Fund',
+  XLE: 'Energy Select Sector SPDR Fund',
+  XAR: 'SPDR S&P Aerospace & Defense ETF',
+  XLI: 'Industrial Select Sector SPDR Fund',
+  XLV: 'Health Care Select Sector SPDR Fund',
+  XLY: 'Consumer Discretionary Select Sector SPDR Fund',
+  XLP: 'Consumer Staples Select Sector SPDR Fund',
+  XLC: 'Communication Services Select Sector SPDR Fund',
+  XLU: 'Utilities Select Sector SPDR Fund',
+  XLRE: 'Real Estate Select Sector SPDR Fund',
+  CIBR: 'First Trust Nasdaq Cybersecurity ETF',
+  XLK: 'Technology Select Sector SPDR Fund',
+  XLB: 'Materials Select Sector SPDR Fund',
+  AAPL: 'Apple Inc.',
+  MSFT: 'Microsoft Corporation',
+  NVDA: 'NVIDIA Corporation',
+  AMZN: 'Amazon.com, Inc.',
+  META: 'Meta Platforms, Inc.',
+  TSLA: 'Tesla, Inc.',
+  GOOGL: 'Alphabet Inc. Class A',
+  GOOG: 'Alphabet Inc. Class C',
+  JPM: 'JPMorgan Chase & Co.',
+  AVGO: 'Broadcom Inc.',
+  AMD: 'Advanced Micro Devices, Inc.',
+  ORCL: 'Oracle Corporation',
+  NFLX: 'Netflix, Inc.'
 };
 
 const SPECIAL = {
   'US2Y':  { type: 'rate', name: 'U.S. Treasury 2-Year Yield', format: 'percent', cnbc: 'US2Y', fred: 'DGS2', display: 'US 2Y' },
   'US10Y': { type: 'rate', name: 'U.S. Treasury 10-Year Yield', format: 'percent', cnbc: 'US10Y', fred: 'DGS10', display: 'US 10Y' },
   'US30Y': { type: 'rate', name: 'U.S. Treasury 30-Year Yield', format: 'percent', cnbc: 'US30Y', fred: 'DGS30', display: 'US 30Y' },
+  'SOFR': { type: 'rate', name: 'Secured Overnight Financing Rate', format: 'percent', fred: 'SOFR', display: 'SOFR' },
+  'MOVE': { type: 'index', name: 'ICE BofA MOVE Index', format: 'number', cnbc: '.MOVE', tradingview: 'TVC:MOVE', display: 'MOVE' },
+  'DX-Y.NYB': { type: 'index', name: 'ICE U.S. Dollar Index', format: 'number', yahoo: 'DX-Y.NYB', display: 'DXY' },
+  'BTC-USD': { type: 'crypto', name: 'Bitcoin / U.S. Dollar', format: 'currency', yahoo: 'BTC-USD', display: 'BTC-USD' },
   'USDJPY=X': { type: 'fx', name: 'U.S. Dollar / Japanese Yen', format: 'fx', yahoo: 'USDJPY=X', display: 'USD/JPY' },
   'EURUSD=X': { type: 'fx', name: 'Euro / U.S. Dollar', format: 'fx', yahoo: 'EURUSD=X', display: 'EUR/USD' },
   'GBPUSD=X': { type: 'fx', name: 'British Pound / U.S. Dollar', format: 'fx', yahoo: 'GBPUSD=X', display: 'GBP/USD' },
@@ -85,33 +114,50 @@ const ALIASES = {
   '10Y': 'US10Y', 'UST10Y': 'US10Y', 'US10YR': 'US10Y', 'US10Y': 'US10Y',
   '30Y': 'US30Y', 'UST30Y': 'US30Y', 'US30YR': 'US30Y', 'US30Y': 'US30Y',
   'USDJPY': 'USDJPY=X', 'USD/JPY': 'USDJPY=X', 'JPY=X': 'USDJPY=X',
-  'EURUSD': 'EURUSD=X', 'EUR/USD': 'EURUSD=X', 'GBPUSD': 'GBPUSD=X', 'GBP/USD': 'GBPUSD=X',
-  'USDCHF': 'USDCHF=X', 'USD/CHF': 'USDCHF=X', 'USDCAD': 'USDCAD=X', 'USD/CAD': 'USDCAD=X',
+  'EURUSD': 'EURUSD=X', 'EUR/USD': 'EURUSD=X',
+  'GBPUSD': 'GBPUSD=X', 'GBP/USD': 'GBPUSD=X',
+  'USDCHF': 'USDCHF=X', 'USD/CHF': 'USDCHF=X',
+  'USDCAD': 'USDCAD=X', 'USD/CAD': 'USDCAD=X',
   'AUDUSD': 'AUDUSD=X', 'AUD/USD': 'AUDUSD=X',
-  'WTI': 'CL=F', 'OIL': 'CL=F', 'CL': 'CL=F', 'GOLD': 'GC=F', 'GC': 'GC=F',
-  'SPX': '^GSPC', 'S&P500': '^GSPC', 'S&P': '^GSPC', 'DOW': '^DJI', 'DJI': '^DJI',
-  'NASDAQ': '^IXIC', 'COMP': '^IXIC', 'NDX': '^NDX', 'RUT': '^RUT', 'RUSSELL': '^RUT', 'VIX': '^VIX'
+  'WTI': 'CL=F', 'OIL': 'CL=F', 'CL': 'CL=F', 'CLF': 'CL=F',
+  'GOLD': 'GC=F', 'GC': 'GC=F', 'GCF': 'GC=F',
+  'SPX': '^GSPC', 'S&P500': '^GSPC', 'S&P': '^GSPC',
+  'DOW': '^DJI', 'DJI': '^DJI', 'NASDAQ': '^IXIC', 'COMP': '^IXIC',
+  'NDX': '^NDX', 'RUT': '^RUT', 'RUSSELL': '^RUT', 'VIX': '^VIX',
+  'DXY': 'DX-Y.NYB', 'DXYNYB': 'DX-Y.NYB', 'DXY.NYB': 'DX-Y.NYB', 'DX-Y.NYB': 'DX-Y.NYB',
+  'BTC': 'BTC-USD', 'BITCOIN': 'BTC-USD',
+  'SOFR': 'SOFR', 'MOVE': 'MOVE'
 };
 
 function canonicalizeSymbol(value) {
   const raw = String(value || '').trim().toUpperCase().replace(/\s+/g, '');
   if (ALIASES[raw]) return ALIASES[raw];
-  return raw.replace(/[^A-Z0-9.^=\-\/]/g, '').slice(0, 16);
+  return raw.replace(/[^A-Z0-9.^=\-\/]/g, '').slice(0, 20);
 }
 
 function descriptor(symbol) {
-  return SPECIAL[symbol] || { type: 'equity', name: KNOWN_NAMES[symbol] || symbol, format: 'currency', display: symbol };
+  return SPECIAL[symbol] || {
+    type: 'equity',
+    name: KNOWN_NAMES[symbol] || symbol,
+    format: 'currency',
+    display: symbol
+  };
 }
 
 function authHeaders() {
-  return { 'APCA-API-KEY-ID': API_KEY, 'APCA-API-SECRET-KEY': API_SECRET, Accept: 'application/json' };
+  return {
+    'APCA-API-KEY-ID': API_KEY,
+    'APCA-API-SECRET-KEY': API_SECRET,
+    Accept: 'application/json'
+  };
 }
 
 async function fetchJson(url, options = {}) {
-  const response = await fetch(url, { ...options, signal: AbortSignal.timeout(7000) });
+  const response = await fetch(url, { ...options, signal: AbortSignal.timeout(8000) });
   const text = await response.text();
   let body;
-  try { body = text ? JSON.parse(text) : {}; } catch { body = { raw: text }; }
+  try { body = text ? JSON.parse(text) : {}; }
+  catch { body = { raw: text }; }
   if (!response.ok) {
     const err = new Error(body?.message || body?.chart?.error?.description || `Data request failed (${response.status})`);
     err.status = response.status;
@@ -121,7 +167,7 @@ async function fetchJson(url, options = {}) {
 }
 
 async function fetchText(url, options = {}) {
-  const response = await fetch(url, { ...options, signal: AbortSignal.timeout(7000) });
+  const response = await fetch(url, { ...options, signal: AbortSignal.timeout(8000) });
   if (!response.ok) throw new Error(`Data request failed (${response.status})`);
   return response.text();
 }
@@ -168,11 +214,10 @@ async function yahooChart(symbol, range = '1d', interval = '1m', includePrePost 
 
 async function yahooQuote(canonical) {
   const d = descriptor(canonical);
-  const yahooSymbol = d.yahoo || canonical;
   const cached = quoteCache.get(`y:${canonical}`);
-  if (cached && Date.now() - cached.at < 8000) return cached.value;
+  if (cached && Date.now() - cached.at < 9000) return cached.value;
 
-  const result = await yahooChart(yahooSymbol, '1d', '1m', true);
+  const result = await yahooChart(d.yahoo || canonical, '1d', '1m', true);
   const meta = result.meta || {};
   const closes = result?.indicators?.quote?.[0]?.close || [];
   const latestClose = [...closes].reverse().find(Number.isFinite);
@@ -181,9 +226,20 @@ async function yahooQuote(canonical) {
   const change = Number.isFinite(price) && Number.isFinite(previousClose) ? price - previousClose : null;
   const changePct = Number.isFinite(change) && previousClose ? (change / previousClose) * 100 : null;
   const value = {
-    symbol: canonical, displaySymbol: d.display || canonical, name: d.name || canonical,
-    assetType: d.type, format: d.format, price, previousClose, change, changePct,
-    source: d.type === 'fx' ? 'Yahoo FX' : d.type === 'future' ? 'Yahoo Futures' : d.type === 'index' ? 'Yahoo Index' : 'Yahoo',
+    symbol: canonical,
+    displaySymbol: d.display || canonical,
+    name: d.name || canonical,
+    assetType: d.type,
+    format: d.format,
+    price,
+    previousClose,
+    change,
+    changePct,
+    source: d.type === 'fx' ? 'Yahoo FX'
+      : d.type === 'future' ? 'Yahoo Futures'
+      : d.type === 'crypto' ? 'Yahoo Crypto'
+      : d.type === 'index' ? 'Yahoo Index'
+      : 'Yahoo',
     updatedAt: meta.regularMarketTime ? new Date(Number(meta.regularMarketTime) * 1000).toISOString() : null
   };
   quoteCache.set(`y:${canonical}`, { at: Date.now(), value });
@@ -193,7 +249,7 @@ async function yahooQuote(canonical) {
 async function cnbcQuote(canonical, cnbcSymbol) {
   const d = descriptor(canonical);
   const cached = quoteCache.get(`c:${canonical}`);
-  if (cached && Date.now() - cached.at < 5000) return cached.value;
+  if (cached && Date.now() - cached.at < 7000) return cached.value;
 
   const url = new URL(CNBC_BASE);
   url.searchParams.set('symbols', cnbcSymbol);
@@ -206,35 +262,152 @@ async function cnbcQuote(canonical, cnbcSymbol) {
   url.searchParams.set('events', '1');
   const data = await fetchJson(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' } });
   const q = data?.FormattedQuoteResult?.FormattedQuote?.[0];
-  if (!q || Number(q.code || 0) !== 0) throw new Error(`No CNBC quote for ${canonical}`);
+  if (!q) throw new Error(`No CNBC quote for ${canonical}`);
 
   const price = parseNum(q.last);
   const previousClose = parseNum(q.previous_day_closing);
   const change = Number.isFinite(price) && Number.isFinite(previousClose) ? price - previousClose : parseNum(q.change);
   const changePct = Number.isFinite(change) && previousClose ? (change / previousClose) * 100 : parseNum(q.change_pct);
   const value = {
-    symbol: canonical, displaySymbol: d.display || canonical, name: d.name || q.name || canonical,
-    assetType: d.type, format: d.format, price, previousClose, change, changePct,
-    source: d.type === 'rate' ? 'CNBC / Tradeweb' : 'CNBC Futures',
+    symbol: canonical,
+    displaySymbol: d.display || canonical,
+    name: d.name || q.name || canonical,
+    assetType: d.type,
+    format: d.format,
+    price,
+    previousClose,
+    change,
+    changePct,
+    source: d.type === 'rate' ? 'CNBC / Tradeweb'
+      : canonical === 'MOVE' ? 'CNBC · ICE MOVE'
+      : 'CNBC Futures',
     updatedAt: q.last_time ? String(q.last_time).replace(/([+-]\d{2})(\d{2})$/, '$1:$2') : null
   };
   quoteCache.set(`c:${canonical}`, { at: Date.now(), value });
   return value;
 }
 
+async function fredRows(seriesId, startDate = null, endDate = null) {
+  const url = new URL(FRED_BASE);
+  url.searchParams.set('id', seriesId);
+  if (startDate) url.searchParams.set('cosd', startDate);
+  if (endDate) url.searchParams.set('coed', endDate);
+  const csv = await fetchText(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'text/csv' } });
+  const lines = csv.trim().split(/\r?\n/).slice(1);
+  const rows = [];
+  for (const line of lines) {
+    const [date, raw] = line.split(',');
+    const value = Number(raw);
+    if (date && Number.isFinite(value)) rows.push({ date, value });
+  }
+  return rows;
+}
+
+async function fredQuote(canonical) {
+  const d = descriptor(canonical);
+  if (!d.fred) throw new Error(`No FRED series configured for ${canonical}`);
+  const cached = quoteCache.get(`f:${canonical}`);
+  if (cached && Date.now() - cached.at < 60000) return cached.value;
+
+  const end = new Date();
+  const start = new Date(end.getTime() - 21 * 86400000);
+  const rows = await fredRows(d.fred, start.toISOString().slice(0, 10), end.toISOString().slice(0, 10));
+  if (!rows.length) throw new Error(`No official rate data for ${canonical}`);
+  const last = rows.at(-1);
+  const prev = rows.at(-2);
+  const price = last.value;
+  const previousClose = prev?.value ?? null;
+  const change = Number.isFinite(previousClose) ? price - previousClose : null;
+  const changePct = Number.isFinite(change) && previousClose ? (change / previousClose) * 100 : null;
+  const value = {
+    symbol: canonical,
+    displaySymbol: d.display || canonical,
+    name: d.name,
+    assetType: d.type,
+    format: d.format,
+    price,
+    previousClose,
+    change,
+    changePct,
+    source: canonical === 'SOFR' ? 'New York Fed / FRED' : 'FRED',
+    updatedAt: `${last.date}T12:00:00Z`
+  };
+  quoteCache.set(`f:${canonical}`, { at: Date.now(), value });
+  return value;
+}
+
+async function tradingViewMoveQuote() {
+  const canonical = 'MOVE';
+  const d = descriptor(canonical);
+  const cached = quoteCache.get('tv:MOVE');
+  if (cached && Date.now() - cached.at < 15000) return cached.value;
+
+  const body = {
+    symbols: { tickers: [d.tradingview], query: { types: [] } },
+    columns: ['close', 'change', 'change_abs', 'description']
+  };
+  const response = await fetch(TRADINGVIEW_SCAN, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'User-Agent': USER_AGENT, Accept: 'application/json' },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(8000)
+  });
+  if (!response.ok) throw new Error(`MOVE fallback failed (${response.status})`);
+  const data = await response.json();
+  const row = data?.data?.[0]?.d;
+  if (!row) throw new Error('MOVE fallback returned no data');
+  const price = parseNum(row[0]);
+  const changePct = parseNum(row[1]);
+  const change = parseNum(row[2]);
+  const previousClose = Number.isFinite(price) && Number.isFinite(change) ? price - change : null;
+  const value = {
+    symbol: canonical,
+    displaySymbol: 'MOVE',
+    name: d.name,
+    assetType: 'index',
+    format: 'number',
+    price,
+    previousClose,
+    change,
+    changePct,
+    source: 'TradingView · ICE MOVE',
+    updatedAt: new Date().toISOString()
+  };
+  quoteCache.set('tv:MOVE', { at: Date.now(), value });
+  return value;
+}
+
 async function externalQuote(canonical) {
   const d = descriptor(canonical);
+
+  if (canonical === 'SOFR') return fredQuote(canonical);
+
+  if (canonical === 'MOVE') {
+    try { return await cnbcQuote(canonical, d.cnbc); }
+    catch {
+      return tradingViewMoveQuote();
+    }
+  }
+
   if (d.cnbc) {
     try { return await cnbcQuote(canonical, d.cnbc); }
     catch (error) {
-      if (d.type === 'rate') throw error;
+      if (d.type === 'rate' && d.fred) return fredQuote(canonical);
     }
   }
+
+  if (d.fred && d.type === 'rate') return fredQuote(canonical);
   return yahooQuote(canonical);
 }
 
 app.get('/api/quotes', async (req, res) => {
-  const symbols = [...new Set(String(req.query.symbols || '').split(',').map(canonicalizeSymbol).filter(Boolean))].slice(0, 30);
+  const symbols = [...new Set(
+    String(req.query.symbols || '')
+      .split(',')
+      .map(canonicalizeSymbol)
+      .filter(Boolean)
+  )].slice(0, 40);
+
   if (!symbols.length) return res.status(400).json({ error: 'No symbols supplied.' });
 
   const equitySymbols = symbols.filter(s => descriptor(s).type === 'equity');
@@ -247,6 +420,7 @@ app.get('/api/quotes', async (req, res) => {
       url.searchParams.set('symbols', equitySymbols.join(','));
       url.searchParams.set('feed', 'iex');
       const data = await alpacaFetch(url);
+
       await Promise.all(equitySymbols.map(async symbol => {
         const snap = data?.[symbol] || {};
         const latest = Number(snap?.latestTrade?.p ?? snap?.minuteBar?.c ?? snap?.dailyBar?.c);
@@ -254,9 +428,17 @@ app.get('/api/quotes', async (req, res) => {
         const change = Number.isFinite(latest) && Number.isFinite(previousClose) ? latest - previousClose : null;
         const changePct = Number.isFinite(change) && previousClose ? (change / previousClose) * 100 : null;
         quoteBySymbol.set(symbol, {
-          symbol, displaySymbol: symbol, name: await resolveEquityName(symbol), assetType: 'equity', format: 'currency',
-          price: Number.isFinite(latest) ? latest : null, previousClose: Number.isFinite(previousClose) ? previousClose : null,
-          change, changePct, source: 'Alpaca IEX', updatedAt: snap?.latestTrade?.t || snap?.minuteBar?.t || null
+          symbol,
+          displaySymbol: symbol,
+          name: await resolveEquityName(symbol),
+          assetType: 'equity',
+          format: 'currency',
+          price: Number.isFinite(latest) ? latest : null,
+          previousClose: Number.isFinite(previousClose) ? previousClose : null,
+          change,
+          changePct,
+          source: 'Alpaca IEX',
+          updatedAt: snap?.latestTrade?.t || snap?.minuteBar?.t || null
         });
       }));
     } catch (error) {
@@ -266,24 +448,40 @@ app.get('/api/quotes', async (req, res) => {
   }
 
   const fallbackEquities = equitySymbols.filter(s => !quoteBySymbol.has(s));
-  await Promise.all([...symbols.filter(s => descriptor(s).type !== 'equity'), ...fallbackEquities].map(async symbol => {
+  const nonEquities = symbols.filter(s => descriptor(s).type !== 'equity');
+
+  await Promise.all([...nonEquities, ...fallbackEquities].map(async symbol => {
     try {
       const d = descriptor(symbol);
       const q = d.type === 'equity' ? await yahooQuote(symbol) : await externalQuote(symbol);
       if (d.type === 'equity') q.name = await resolveEquityName(symbol);
       quoteBySymbol.set(symbol, q);
     } catch (error) {
+      const d = descriptor(symbol);
       quoteBySymbol.set(symbol, {
-        symbol, displaySymbol: descriptor(symbol).display || symbol, name: descriptor(symbol).name || symbol,
-        assetType: descriptor(symbol).type, format: descriptor(symbol).format, price: null, previousClose: null,
-        change: null, changePct: null, source: 'Unavailable', error: error.message
+        symbol,
+        displaySymbol: d.display || symbol,
+        name: d.name || symbol,
+        assetType: d.type,
+        format: d.format,
+        price: null,
+        previousClose: null,
+        change: null,
+        changePct: null,
+        source: 'Unavailable',
+        error: error.message
       });
     }
   }));
 
   const quotes = symbols.map(s => quoteBySymbol.get(s)).filter(Boolean);
   res.setHeader('Cache-Control', 'no-store');
-  res.json({ quotes, serverTime: new Date().toISOString(), alpacaConfigured: Boolean(API_KEY && API_SECRET), alpacaError });
+  res.json({
+    quotes,
+    serverTime: new Date().toISOString(),
+    alpacaConfigured: Boolean(API_KEY && API_SECRET),
+    alpacaError
+  });
 });
 
 const ALPACA_RANGE = {
@@ -310,9 +508,15 @@ const YAHOO_RANGE = {
 
 function rangeStart(range) {
   const now = new Date();
-  const days = { '1D': 6, '5D': 10, '1M': 40, '3M': 105, '6M': 195, '1Y': 375, '5Y': 1840 }[range];
   if (range === 'YTD') return new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
-  return new Date(now.getTime() - (days || 6) * 86400000);
+  const days = { '1D': 6, '5D': 10, '1M': 40, '3M': 105, '6M': 195, '1Y': 375, '5Y': 1840 }[range] || 6;
+  return new Date(now.getTime() - days * 86400000);
+}
+
+function decimateBars(bars, maxPoints) {
+  if (!maxPoints || bars.length <= maxPoints) return bars;
+  const step = Math.ceil(bars.length / maxPoints);
+  return bars.filter((_, i) => i % step === 0 || i === bars.length - 1);
 }
 
 async function yahooBars(canonical, range) {
@@ -323,92 +527,134 @@ async function yahooBars(canonical, range) {
   const quote = result?.indicators?.quote?.[0] || {};
   const bars = timestamps.map((ts, i) => ({
     t: new Date(Number(ts) * 1000).toISOString(),
-    o: Number(quote.open?.[i]), h: Number(quote.high?.[i]), l: Number(quote.low?.[i]), c: Number(quote.close?.[i]), v: Number(quote.volume?.[i])
+    o: Number(quote.open?.[i]),
+    h: Number(quote.high?.[i]),
+    l: Number(quote.low?.[i]),
+    c: Number(quote.close?.[i]),
+    v: Number(quote.volume?.[i])
   })).filter(b => Number.isFinite(b.c));
-  return { bars, source: d.type === 'fx' ? 'Yahoo FX' : d.type === 'future' ? 'Yahoo Futures' : d.type === 'index' ? 'Yahoo Index' : 'Yahoo', timeframe: cfg.interval };
+  return {
+    bars,
+    source: d.type === 'fx' ? 'Yahoo FX'
+      : d.type === 'future' ? 'Yahoo Futures'
+      : d.type === 'crypto' ? 'Yahoo Crypto'
+      : d.type === 'index' ? 'Yahoo Index'
+      : 'Yahoo',
+    timeframe: cfg.interval
+  };
 }
 
 async function fredRateBars(canonical, range) {
   const d = descriptor(canonical);
   const start = rangeStart(range);
   const now = new Date();
-  const url = new URL(FRED_BASE);
-  url.searchParams.set('id', d.fred);
-  url.searchParams.set('cosd', start.toISOString().slice(0, 10));
-  url.searchParams.set('coed', now.toISOString().slice(0, 10));
-  const csv = await fetchText(url, { headers: { 'User-Agent': USER_AGENT, Accept: 'text/csv' } });
-  const lines = csv.trim().split(/\r?\n/).slice(1);
-  let bars = lines.map(line => {
-    const [date, raw] = line.split(',');
-    const c = Number(raw);
-    return { t: `${date}T16:00:00-04:00`, c };
-  }).filter(b => Number.isFinite(b.c));
+  const rows = await fredRows(
+    d.fred,
+    start.toISOString().slice(0, 10),
+    now.toISOString().slice(0, 10)
+  );
+  const bars = rows.map(r => ({
+    t: `${r.date}T12:00:00Z`,
+    o: r.value,
+    h: r.value,
+    l: r.value,
+    c: r.value,
+    v: null
+  }));
+  return {
+    bars,
+    source: canonical === 'SOFR' ? 'New York Fed / FRED' : 'FRED Treasury history',
+    timeframe: '1Day'
+  };
+}
 
-  if (range === '1D' && bars.length > 2) bars = bars.slice(-2);
-  if (range === '5D' && bars.length > 6) bars = bars.slice(-6);
+async function alpacaBars(symbol, range) {
+  const cfg = ALPACA_RANGE[range];
+  const now = new Date();
+  const start = cfg.ytd
+    ? new Date(Date.UTC(now.getUTCFullYear(), 0, 1))
+    : new Date(now.getTime() - cfg.days * 86400000);
 
-  try {
-    const current = await cnbcQuote(canonical, d.cnbc);
-    if (Number.isFinite(current.price)) {
-      const today = new Date().toISOString().slice(0, 10);
-      const live = { t: current.updatedAt || new Date().toISOString(), c: current.price };
-      const lastDate = bars.at(-1)?.t?.slice(0, 10);
-      if (lastDate === today) bars[bars.length - 1] = live; else bars.push(live);
-    }
-  } catch {}
+  const url = new URL(`/v2/stocks/${encodeURIComponent(symbol)}/bars`, ALPACA_BASE);
+  url.searchParams.set('timeframe', cfg.timeframe);
+  url.searchParams.set('start', start.toISOString());
+  url.searchParams.set('end', now.toISOString());
+  url.searchParams.set('adjustment', 'raw');
+  url.searchParams.set('feed', 'iex');
+  url.searchParams.set('sort', 'asc');
+  url.searchParams.set('limit', '10000');
 
-  return { bars, source: 'CNBC live + FRED daily', timeframe: '1Day' };
+  const data = await alpacaFetch(url);
+  const raw = data?.bars || [];
+  const bars = raw.map(b => ({
+    t: b.t,
+    o: Number(b.o),
+    h: Number(b.h),
+    l: Number(b.l),
+    c: Number(b.c),
+    v: Number(b.v)
+  })).filter(b => Number.isFinite(b.c));
+  return { bars: decimateBars(bars, cfg.maxPoints), source: 'Alpaca IEX', timeframe: cfg.timeframe };
+}
+
+async function moveBars() {
+  const q = await externalQuote('MOVE');
+  if (!Number.isFinite(q.price)) throw new Error('MOVE history is unavailable from the public feed.');
+  const now = new Date();
+  const previous = new Date(now.getTime() - 86400000);
+  const prev = Number.isFinite(q.previousClose) ? q.previousClose : q.price;
+  return {
+    bars: [
+      { t: previous.toISOString(), o: prev, h: prev, l: prev, c: prev, v: null },
+      { t: now.toISOString(), o: q.price, h: q.price, l: q.price, c: q.price, v: null }
+    ],
+    source: `${q.source} · current vs previous close`,
+    timeframe: '1Day'
+  };
 }
 
 app.get('/api/bars/:symbol', async (req, res) => {
   const symbol = canonicalizeSymbol(req.params.symbol);
   const range = String(req.query.range || '1D').toUpperCase();
-  if (!symbol || !ALPACA_RANGE[range]) return res.status(400).json({ error: 'Invalid symbol or range.' });
-  const d = descriptor(symbol);
+  if (!ALPACA_RANGE[range] || !YAHOO_RANGE[range]) return res.status(400).json({ error: 'Unsupported chart range.' });
 
+  const d = descriptor(symbol);
   try {
     let result;
-    if (d.type === 'rate') {
+    if (symbol === 'MOVE') {
+      result = await moveBars();
+    } else if (d.type === 'rate' && d.fred) {
       result = await fredRateBars(symbol, range);
-    } else if (d.type !== 'equity') {
-      result = await yahooBars(symbol, range);
-    } else if (API_KEY && API_SECRET) {
+    } else if (d.type === 'equity') {
       try {
-        const cfg = ALPACA_RANGE[range];
-        const now = new Date();
-        const start = cfg.ytd ? new Date(Date.UTC(now.getUTCFullYear(), 0, 1)) : new Date(now.getTime() - cfg.days * 86400000);
-        const url = new URL(`/v2/stocks/${encodeURIComponent(symbol)}/bars`, ALPACA_BASE);
-        url.searchParams.set('timeframe', cfg.timeframe);
-        url.searchParams.set('start', start.toISOString());
-        url.searchParams.set('end', now.toISOString());
-        url.searchParams.set('limit', String(Math.min(cfg.maxPoints, 10000)));
-        url.searchParams.set('adjustment', 'split');
-        url.searchParams.set('feed', 'iex');
-        url.searchParams.set('sort', 'asc');
-        const data = await alpacaFetch(url);
-        result = { source: 'Alpaca IEX', timeframe: cfg.timeframe, bars: (data?.bars || []).map(bar => ({
-          t: bar.t, o: Number(bar.o), h: Number(bar.h), l: Number(bar.l), c: Number(bar.c), v: Number(bar.v)
-        })).filter(b => Number.isFinite(b.c)) };
-      } catch (error) {
-        console.error('Alpaca bars fallback:', error.message);
+        result = await alpacaBars(symbol, range);
+      } catch {
         result = await yahooBars(symbol, range);
       }
     } else {
       result = await yahooBars(symbol, range);
     }
 
-    res.setHeader('Cache-Control', ['1D', '5D'].includes(range) ? 'no-store' : 'private, max-age=20');
-    res.json({ symbol, displaySymbol: d.display || symbol, name: d.name || symbol, assetType: d.type, format: d.format, range, ...result });
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({
+      symbol,
+      displaySymbol: d.display || symbol,
+      name: d.name || await resolveEquityName(symbol),
+      assetType: d.type,
+      format: d.format,
+      range,
+      ...result
+    });
   } catch (error) {
-    console.error(error);
-    res.status(error.status || 500).json({ error: error.message || 'Unable to fetch chart data.' });
+    res.status(502).json({ error: error.message || 'Chart request failed.' });
   }
 });
 
-app.get('/api/health', (req, res) => {
-  res.json({ ok: true, alpacaConfigured: Boolean(API_KEY && API_SECRET), time: new Date().toISOString() });
+app.use((_req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.use((req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-
-app.listen(port, () => console.log(`Shaffer Market Watch listening on port ${port}`));
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Shaffer Market Watch v${BUILD_VERSION} listening on ${port}`);
+});

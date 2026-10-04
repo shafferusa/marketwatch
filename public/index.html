@@ -10,13 +10,13 @@
   <title>Market Watch</title>
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="apple-touch-icon" href="/icon-192.png" />
-  <link rel="stylesheet" href="/styles.css?v=3.0.0" />
+  <link rel="stylesheet" href="/styles.css?v=4.0.0" />
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
       <div>
-        <div class="eyebrow">SHAFFER TERMINAL <span id="buildVersion" class="build-version">v3.0.0</span></div>
+        <div class="eyebrow">SHAFFER TERMINAL <span id="buildVersion" class="build-version">v4.0.0</span></div>
         <h1>Market Watch</h1>
       </div>
       <div class="topbar-right">
@@ -50,7 +50,7 @@
         <div class="chart-header">
           <button id="backBtn" class="back-button" aria-label="Back to watchlist">‹</button>
           <div class="chart-symbol-block">
-            <div id="chartSymbol" class="chart-symbol">SPY</div>
+            <div id="chartSymbol" class="chart-symbol">SPX</div>
             <div id="chartFeed" class="muted small">Market data</div>
           </div>
           <div class="chart-price-block">
@@ -76,7 +76,7 @@
           <div id="chartTooltip" class="chart-tooltip hidden"></div>
         </div>
         <div class="chart-footer muted small">
-          Equities use Alpaca IEX. Treasury yields use CNBC/Tradeweb with FRED history. FX, indices and futures use Yahoo/CNBC market data and may be delayed.
+          Equities/ETFs use Alpaca IEX. Treasury yields and SOFR use official/public rate data. FX, DXY, crypto, indices and futures use public market feeds and may be delayed. MOVE uses the ICE MOVE instrument through public quote feeds.
         </div>
       </section>
     </main>
@@ -94,16 +94,16 @@
       </div>
 
       <form id="addForm" class="add-form">
-        <input id="tickerInput" autocomplete="off" autocapitalize="characters" maxlength="16" placeholder="Symbol (NVDA, US10Y, USD/JPY, CL=F)" />
+        <input id="tickerInput" autocomplete="off" autocapitalize="characters" maxlength="20" placeholder="Symbol (NVDA, SOFR, DXY, BTC, CL=F)" />
         <button type="submit" class="primary-button">Add</button>
       </form>
       <div id="settingsList" class="settings-list"></div>
 
       <button id="wakeBtn" class="secondary-button full-width">Keep screen awake</button>
-      <div class="settings-note">Watchlist and drag order are saved only on this tablet/browser. Drag the ⠿ handle on the main screen to reorder. Macro symbols: US2Y, US10Y, US30Y, USD/JPY, CL=F, GC=F.</div>
+      <div class="settings-note">Watchlist order is saved on this device. Use ↑ and ↓ on each market row to move it. Aliases supported: SPX, NDX, VIX, US2Y, US10Y, US30Y, MOVE, SOFR, DXY, BTC, USD/JPY, CL=F and GC=F.</div>
     </div>
   </div>
 
-  <script src="/app.js?v=3.0.0" type="module"></script>
+  <script src="/app.js?v=4.0.0" type="module"></script>
 </body>
 </html>

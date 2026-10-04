@@ -1,8 +1,8 @@
 {
   "name": "tablet-market-watcher",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "private": true,
-  "description": "Tablet-first multi-asset market watchlist with equities, Treasury yields, FX, indices and commodity futures.",
+  "description": "Tablet-first multi-asset market watchlist with equities, rates, FX, indices, crypto and commodity futures.",
   "type": "module",
   "engines": {
     "node": ">=20"
