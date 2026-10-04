@@ -1,7 +1,7 @@
 {
-  "name": "Shaffer Market Watch",
-  "short_name": "Market Watch",
-  "description": "Tablet-first real-time stock and market watchlist.",
+  "name": "Shaffer Terminal",
+  "short_name": "Shaffer",
+  "description": "Shaffer multi-asset market terminal.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0b0d12",

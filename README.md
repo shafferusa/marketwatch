@@ -1,79 +1,32 @@
-# Shaffer Market Watch v2
+# Shaffer Terminal v5
 
-Tablet-first installable market dashboard (PWA) for a Windows tablet/laptop, iPad, or Android tablet.
+Installable multi-asset market dashboard for a Windows tablet/laptop.
 
-## What changed in v2
+## v5 highlights
 
-- Security/fund/index name now appears under every symbol instead of the old “IEX · tap for chart” text.
-- Drag-and-drop reordering from the main watchlist using the ⠿ handle. Works with mouse and touch; order persists locally.
-- Mixed asset watchlist (up to 30 symbols):
-  - U.S. equities/ETFs via Alpaca IEX.
-  - Actual Treasury yields: `US2Y`, `US10Y`, `US30Y` (current quote via CNBC/Tradeweb; historical daily series via FRED).
-  - Spot FX such as `USDJPY=X` (you can also type `USD/JPY`).
-  - Commodity futures including `CL=F` (WTI crude) and `GC=F` (gold), plus `SI=F`, `HG=F`, and `NG=F`.
-  - Major indices such as `SPX`, `DJI`, `NASDAQ`, `NDX`, `RUT`, and `VIX`.
-- Asset-aware formatting: Treasury yields show %, rate changes show basis points, FX is not shown with a dollar sign, indices are plain index points.
-- Charts continue to support 1D, 5D, 1M, 3M, 6M, YTD, 1Y, and 5Y.
+- Default 41-instrument preset with room for up to 50 symbols.
+- MAGS is directly below DJI in the default list.
+- Rates: US2Y, US5Y, US10Y, US30Y, SOFR and 10-year breakeven inflation.
+- Credit: ICE BofA investment-grade and high-yield option-adjusted spreads via FRED.
+- MOVE is explicitly the ICE BofA MOVE Index and uses the Yahoo `^MOVE` series for historical charts.
+- DXY, BTC-USD and USD/CNH are explicit special instruments.
+- Equity-index futures: ES=F, NQ=F, YM=F and NKD=F.
+- Reordering uses compact up/down chevrons instead of drag handles or large arrow buttons.
+- PWA branding is now Shaffer Terminal, with the page labeled Markets.
 
-## Useful symbols
+## Default preset
 
-### Rates
-- `US2Y` — U.S. Treasury 2-Year Yield
-- `US10Y` — U.S. Treasury 10-Year Yield
-- `US30Y` — U.S. Treasury 30-Year Yield
+`SPX, NDX, DJI, MAGS, VIX, US2Y, US5Y, US10Y, US30Y, MOVE, CL=F, GC=F, SOFR, BE10Y, DXY, BTC-USD, USD/JPY, GBP/USD, EUR/USD, USD/CNH, SMH, XLF, XLE, XAR, XLI, XLV, XLY, XLP, XLC, XLU, XLRE, CIBR, VTI, EEM, ACWI, IG OAS, HY OAS, ES=F, NQ=F, YM=F, NKD=F`
 
-### FX
-- `USDJPY=X` or `USD/JPY`
-- `EURUSD=X` or `EUR/USD`
-- `GBPUSD=X` or `GBP/USD`
-- `USDCHF=X`
-- `USDCAD=X`
-- `AUDUSD=X`
+## Render
 
-### Futures
-- `CL=F` — WTI Crude Oil Futures (front month)
-- `GC=F` — Gold Futures (front month)
-- `SI=F` — Silver Futures
-- `HG=F` — Copper Futures
-- `NG=F` — Natural Gas Futures
+Build command: `npm install`
 
-### Indices
-- `SPX` — S&P 500
-- `DJI` — Dow Jones Industrial Average
-- `NASDAQ` — Nasdaq Composite
-- `NDX` — Nasdaq-100
-- `RUT` — Russell 2000
-- `VIX` — CBOE Volatility Index
-
-## Render configuration
-
-Keep the same Render Web Service you already created.
-
-Build command:
-
-```bash
-npm install
-```
-
-Start command:
-
-```bash
-npm start
-```
+Start command: `npm start`
 
 Environment variables:
 
-```text
-ALPACA_API_KEY_ID=your_key
-ALPACA_API_SECRET_KEY=your_secret
-```
+- `ALPACA_API_KEY_ID`
+- `ALPACA_API_SECRET_KEY`
 
-Do not commit the actual key or secret to GitHub.
-
-## Updating the existing deployment
-
-Replace the existing repository files with this v2 package and commit to the same GitHub branch. Render should automatically redeploy. If your installed PWA appears stale after the deploy, close/reopen it once; v2 uses a new service-worker cache version.
-
-## Data notes
-
-Alpaca IEX provides the live U.S. equity/ETF feed used by the original app. Treasury current yields are read from CNBC/Tradeweb and historical Treasury charts use Federal Reserve (FRED) daily constant-maturity series. FX, index, and most futures chart data use Yahoo Finance’s public chart feed; those feeds can be delayed and are not a substitute for a licensed professional exchange feed. `CL=F` and `GC=F` represent rolling front-month futures, so the underlying contract changes as the market rolls forward.
+Never commit API credentials to GitHub.

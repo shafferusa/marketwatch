@@ -1,5 +1,5 @@
-const CACHE = 'market-watch-shell-v4';
-const SHELL = ['/', '/styles.css?v=4.0.0', '/app.js?v=4.0.0', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
+const CACHE = 'market-watch-shell-v5';
+const SHELL = ['/', '/styles.css?v=5.0.0', '/app.js?v=5.0.0', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)));

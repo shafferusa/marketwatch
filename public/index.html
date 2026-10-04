@@ -6,18 +6,18 @@
   <meta name="theme-color" content="#0b0d12" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Market Watch" />
-  <title>Market Watch</title>
+  <meta name="apple-mobile-web-app-title" content="Shaffer Terminal" />
+  <title>Markets</title>
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="apple-touch-icon" href="/icon-192.png" />
-  <link rel="stylesheet" href="/styles.css?v=4.0.0" />
+  <link rel="stylesheet" href="/styles.css?v=5.0.0" />
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
       <div>
-        <div class="eyebrow">SHAFFER TERMINAL <span id="buildVersion" class="build-version">v4.0.0</span></div>
-        <h1>Market Watch</h1>
+        <div class="eyebrow">SHAFFER TERMINAL <span id="buildVersion" class="build-version">v5.0.0</span></div>
+        <h1>Markets</h1>
       </div>
       <div class="topbar-right">
         <div class="clock-wrap">
@@ -76,7 +76,7 @@
           <div id="chartTooltip" class="chart-tooltip hidden"></div>
         </div>
         <div class="chart-footer muted small">
-          Equities/ETFs use Alpaca IEX. Treasury yields and SOFR use official/public rate data. FX, DXY, crypto, indices and futures use public market feeds and may be delayed. MOVE uses the ICE MOVE instrument through public quote feeds.
+          Equities/ETFs use Alpaca IEX. Treasury yields, SOFR, breakeven inflation and credit spreads use public/FRED data. FX, DXY, crypto, indices and futures use public market feeds and may be delayed. MOVE uses the ICE BofA MOVE index via Yahoo/public feeds.
         </div>
       </section>
     </main>
@@ -94,16 +94,16 @@
       </div>
 
       <form id="addForm" class="add-form">
-        <input id="tickerInput" autocomplete="off" autocapitalize="characters" maxlength="20" placeholder="Symbol (NVDA, SOFR, DXY, BTC, CL=F)" />
+        <input id="tickerInput" autocomplete="off" autocapitalize="characters" maxlength="20" placeholder="Symbol (MAGS, US5Y, SOFR, DXY, BTC, ES=F)" />
         <button type="submit" class="primary-button">Add</button>
       </form>
       <div id="settingsList" class="settings-list"></div>
 
       <button id="wakeBtn" class="secondary-button full-width">Keep screen awake</button>
-      <div class="settings-note">Watchlist order is saved on this device. Use ↑ and ↓ on each market row to move it. Aliases supported: SPX, NDX, VIX, US2Y, US10Y, US30Y, MOVE, SOFR, DXY, BTC, USD/JPY, CL=F and GC=F.</div>
+      <div class="settings-note">Watchlist order is saved on this device. Use the small ▲/▼ controls to reorder. Up to 50 symbols are supported. Macro aliases include SPX, NDX, VIX, US2Y/5Y/10Y/30Y, MOVE, SOFR, BE10Y, IG OAS, HY OAS, DXY, BTC, USD/CNH, CL=F and GC=F.</div>
     </div>
   </div>
 
-  <script src="/app.js?v=4.0.0" type="module"></script>
+  <script src="/app.js?v=5.0.0" type="module"></script>
 </body>
 </html>

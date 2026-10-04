@@ -1,17 +1,10 @@
 {
   "name": "tablet-market-watcher",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "private": true,
   "description": "Tablet-first multi-asset market watchlist with equities, rates, FX, indices, crypto and commodity futures.",
   "type": "module",
-  "engines": {
-    "node": ">=20"
-  },
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
-  },
-  "dependencies": {
-    "express": "^5.1.0"
-  }
+  "engines": {"node": ">=20"},
+  "scripts": {"start": "node server.js", "dev": "node --watch server.js"},
+  "dependencies": {"express": "^5.1.0"}
 }
