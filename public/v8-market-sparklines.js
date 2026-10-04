@@ -1,7 +1,7 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const cache=new Map(), pending=new Map();
 let raf=0;
-const CACHE_MS={'1D':45000,'1W':60000,'1M':120000,'3M':180000,'1Y':300000,'3Y':300000,'5Y':300000,CQ:180000};
+const CACHE_MS={'1D':60000,'1W':60000,'1M':300000,'3M':300000,'1Y':Infinity,'3Y':Infinity,'5Y':Infinity,CQ:60000};
 const RANGE={'1D':'1D','1W':'5D','1M':'1M','3M':'3M','1Y':'1Y','3Y':'5Y','5Y':'5Y',CQ:'YTD'};
 
 const style=document.createElement('style');
