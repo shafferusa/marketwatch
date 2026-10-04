@@ -1,6 +1,6 @@
 {
-  "name": "Shaffer Application",
-  "short_name": "Shaffer App",
+  "name": "Research Application",
+  "short_name": "Research App",
   "description": "Shaffer multi-asset markets application.",
   "start_url": "/",
   "display": "standalone",
