@@ -13,6 +13,7 @@ function format(value,meta){if(!Number.isFinite(value))return'—';const n=new I
 function changeText(d,h){
   if(!d)return['—',h];
   if(d.noNewObservation)return['—',`No new release · ${h}`];
+  if(['% yield','% spread'].includes(d.unit))return[`${signed(d.change*100,1)} bp`,h];
   if(d.unit.startsWith('%'))return[`${signed(d.change,2)} pp`,h];
   return[signed(d.change,d.decimals??2),`${d.unit} · ${h}`];
 }
