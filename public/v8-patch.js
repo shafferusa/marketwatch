@@ -56,8 +56,9 @@ const weekButton=$('#rangeBar .range[data-range="5D"]');if(weekButton){weekButto
 function primeMarketRows(){let hs={};try{hs=JSON.parse(localStorage.getItem('tablet-market-watcher-horizons-v6')||'{}')||{}}catch{}$$('#watchlist .watch-row').forEach(row=>{const s=row.dataset.symbol;if(s)row.dataset.paintedSymbol=`${s}|${hs[s]||'1D'}`})}
 primeMarketRows();
 
+await import('./prod-refresh.js?v=prod4');
 await import('./v8-markets.js?v=prod2');
-await import('./v8-market-sparklines.js?v=prod2');
+await import('./v8-market-sparklines.js?v=prod4');
 await import('./v8-chart.js?v=prod3');
 await import('./v8-multi.js?v=prod3');
-if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js?v=prod3',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js?v=prod4',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
