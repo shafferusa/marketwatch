@@ -18,8 +18,6 @@ const panelResults=$('#panelSearchResults');if(panelResults){new MutationObserve
 const globalInput=$('#globalSearch');
 if(globalInput){globalInput.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();e.stopImmediatePropagation();trimRows(globalResults);const first=$('#globalSearchResults [data-result-symbol]');if(first){first.click();setTimeout(clearSearch,0)}else clearSearch()},true)}
 
-document.addEventListener('keydown',e=>{const inp=e.target.closest?.('.mv-symbol-input');if(!inp||e.key!=='Enter')return;trimRows(panelResults);const first=panelResults?.querySelector('[data-result-symbol]');if(!first)return;e.preventDefault();e.stopImmediatePropagation();first.click()},true);
-
 let origin=null;
 if(globalResults){globalResults.addEventListener('click',e=>{const r=e.target.closest('[data-result-symbol]');if(!r)return;window.__shafferChartCanonical=r.dataset.resultSymbol||null;const p=document.body.dataset.page||'markets';if(p!=='chart')origin={page:p,y:scrollY};document.body.classList.add('search-chart');setTimeout(clearSearch,0);requestAnimationFrame(()=>scrollTo(0,0))},true)}
 $('#chartBack')?.addEventListener('click',()=>{window.__shafferChartCanonical=null;if(!origin){document.body.classList.remove('search-chart');return}const o=origin;origin=null;document.body.classList.remove('search-chart');setTimeout(()=>requestAnimationFrame(()=>scrollTo(0,o.y)),0)});
