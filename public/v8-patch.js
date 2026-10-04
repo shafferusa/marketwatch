@@ -38,7 +38,7 @@ if(globalResults){globalResults.addEventListener('click',e=>{const r=e.target.cl
 $('#chartBack')?.addEventListener('click',()=>{window.__shafferChartCanonical=null;if(!origin){document.body.classList.remove('search-chart');return}const o=origin;origin=null;document.body.classList.remove('search-chart');setTimeout(()=>requestAnimationFrame(()=>scrollTo(0,o.y)),0)});
 $$('.terminal-tab').forEach(t=>t.addEventListener('click',()=>{origin=null;window.__shafferChartCanonical=null;document.body.classList.remove('search-chart');clearSearch()}));
 
-const PAGES=['markets','multiview','newspaper','learning'];
+const PAGES=['markets','multiview','macro','newspaper','learning'];
 window.addEventListener('keydown',e=>{const tag=e.target?.tagName?.toLowerCase(),typing=tag==='input'||tag==='textarea'||e.target?.isContentEditable;if(typing)return;if(e.key==='ArrowUp'){e.preventDefault();globalInput?.focus({preventScroll:true});globalInput?.select?.();return}if(e.key==='ArrowDown')return;if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;const p=document.body.dataset.page;if(!PAGES.includes(p))return;e.preventDefault();const i=PAGES.indexOf(p),n=(i+(e.key==='ArrowRight'?1:-1)+PAGES.length)%PAGES.length,tab=$(`.terminal-tab[data-page="${PAGES[n]}"]`);tab?.click();requestAnimationFrame(()=>tab?.blur())},{capture:true});
 
 function commaPercentNode(root){if(!root)return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=walker.nextNode())){const old=n.nodeValue,next=old.replace(/([+-]?)(\d{4,})(\.\d+)?(?=\s*%)/g,(_,sg,int,dec)=>`${sg}${Number(int).toLocaleString('en-US')}${dec||''}`);if(next!==old)n.nodeValue=next}}
@@ -61,4 +61,5 @@ await import('./v8-markets.js?v=prod2');
 await import('./v8-market-sparklines.js?v=prod4');
 await import('./v8-chart.js?v=prod3');
 await import('./v8-multi.js?v=prod3');
-if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js?v=prod4',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js?v=macro1',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+

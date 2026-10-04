@@ -1,0 +1,23 @@
+/* Macro uses the existing Markets row, chart, type, color and control styles. */
+#macroPage>.status-row{display:flex;justify-content:flex-start;align-items:center;min-height:31px;margin:0 0 6px;padding:0 0 0 4px}
+#macroPage .market-tools{display:flex;align-items:center;gap:8px}
+#macroPreset{margin:0;position:relative;z-index:3}
+#macroFeedState{font-size:10px}
+.macro-symbol{display:flex;align-items:center;width:min(138px,100%);height:35px;padding:0 10px;font-size:clamp(18px,2.4vw,24px);letter-spacing:-.025em;border:1px solid rgba(138,180,255,.20);background:linear-gradient(180deg,rgba(138,180,255,.055),rgba(255,255,255,.018));color:var(--text);border-radius:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
+.macro-symbol-long{font-size:18px}
+#macroList .macro-name{font-weight:650}
+#macroList .macro-description{white-space:normal;font-size:10px;line-height:1.3;max-width:170px}
+#macroList .macro-row{min-height:104px}
+.macro-value{font-size:clamp(18px,2.4vw,24px)}
+.macro-value .change-detail{font-size:9px;font-weight:500}
+.macro-date{margin-top:2px}
+.macro-mini-chart{height:48px}
+#macroChartDescription{margin-top:4px;line-height:1.4}
+#macroChartNote{margin:8px 4px;line-height:1.5}
+body[data-page="macrochart"] .chart-header{margin-bottom:6px}
+body[data-page="macrochart"] .chart-page{padding-top:2px}
+#macroCalendarEvents{margin-top:16px}
+.macro-calendar-heading{margin:10px 4px}
+.macro-event{display:grid;grid-template-columns:160px minmax(0,1fr) 40px;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);font-size:12px;line-height:1.5}
+.macro-event:last-child{border-bottom:0}
+@media(max-width:640px){#macroFeedState{display:none}#macroList .macro-description{max-width:150px}#macroList .macro-row{min-height:124px}#macroList .macro-name{white-space:normal}#macroChartFeed{line-height:1.5;font-size:10px}.macro-event{grid-template-columns:1fr;padding:12px 14px;gap:3px}}

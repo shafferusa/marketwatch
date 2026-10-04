@@ -1,4 +1,5 @@
 import express from 'express';
+import { registerMacro } from './macro-api.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -131,5 +132,8 @@ app.get('/api/performance/:symbol',async(req,res)=>{const s=canon(req.params.sym
 app.get('/api/horizon/:symbol',async(req,res)=>{const s=canon(req.params.symbol),h=String(req.query.horizon||'1D').toUpperCase(),d=desc(s);if(!PERF.has(h))return res.status(400).json({error:'Unsupported horizon.'});try{const q=await quoteOne(s);let bars=[],baseline=q.previousClose,baselineDate=null,source=q.source;if(h==='1D'){const x=await barsFor(s,'1D');bars=x.bars;source=x.source||source;}else{const start=performanceStart(h),end=new Date(),pts=await historyFor(s,bufferDate(start),end);pts.sort((a,b)=>a.t-b.t);const base=chooseBaseline(pts,start);if(base){baseline=base.c;baselineDate=base.date;}bars=pts.filter(p=>p.t>=(base?.t??start.getTime())).map(p=>({t:new Date(p.t).toISOString(),c:p.c,o:p.c,h:p.c,l:p.c,v:null}));if(Number.isFinite(q.price)){const last=bars.at(-1);if(!last||Math.abs(Date.parse(last.t)-Date.now())>6*3600000)bars.push({t:new Date().toISOString(),c:q.price,o:q.price,h:q.price,l:q.price,v:null});}}
   const ch=Number.isFinite(q.price)&&Number.isFinite(baseline)?q.price-baseline:null,pct=Number.isFinite(ch)&&baseline?ch/baseline*100:null;res.set('Cache-Control','no-store').json({symbol:s,displaySymbol:q.displaySymbol||d.d||s,name:q.name||d.n||s,assetType:q.assetType||d.t,format:q.format||d.f,source,price:q.price,baseline,baselineDate,change:ch,changePct:pct,horizon:h,bars})}catch(e){res.status(502).json({error:e.message||'Horizon request failed.'})}});
 
+registerMacro(app);
+
 app.use((_q,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
 app.listen(PORT,'0.0.0.0',()=>console.log(`Shaffer Terminal v${VERSION} listening on ${PORT}`));
+
