@@ -5,9 +5,28 @@ const nativeFetch = globalThis.fetch.bind(globalThis);
 const originalJson = express.response.json;
 
 // Keep the existing v7 server implementation but report the v8 build from /api/version.
+// Also make exact ticker/display-symbol matches deterministically rank first in search.
 express.response.json = function patchedJson(body) {
   if (body && typeof body === 'object' && body.version === '7.0.0' && body.maxSymbols === 60) {
     body = { ...body, version: VERSION };
+  }
+  if (this.req?.path === '/api/search' && Array.isArray(body?.results)) {
+    const q = String(this.req.query?.q || '').trim().toUpperCase();
+    const ranked = body.results.map((x, i) => ({ x, i })).sort((a, b) => {
+      const score = r => {
+        const sym = String(r.symbol || '').toUpperCase();
+        const display = String(r.displaySymbol || '').toUpperCase();
+        const name = String(r.name || '').toUpperCase();
+        if (q && (sym === q || display === q)) return 0;
+        if (q && (sym.startsWith(q) || display.startsWith(q))) return 1;
+        if (q && name.startsWith(q)) return 2;
+        if (q && (sym.includes(q) || display.includes(q))) return 3;
+        if (q && name.includes(q)) return 4;
+        return 5;
+      };
+      return score(a.x) - score(b.x) || a.i - b.i;
+    }).map(({ x }) => x);
+    body = { ...body, results: ranked };
   }
   return originalJson.call(this, body);
 };
