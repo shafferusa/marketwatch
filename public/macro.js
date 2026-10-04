@@ -1,3 +1,4 @@
+import { initMacroCalendar } from './macro-calendar.js?v=1';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const KEY='shaffer-macro-horizons-v1', ORDER_KEY='shaffer-macro-order-v1';
@@ -5,6 +6,7 @@ const HORIZONS=['CQ','1D','1W','1M','3M','6M','YTD','1Y','3Y','5Y','10Y','MAX'];
 const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))||fallback}catch{return fallback}};
 let horizons=read(KEY,{}),order=read(ORDER_KEY,[]),catalog=[],data=new Map(),loadedAt=0,loading=null,showPage,showHorizon,chartSymbol=null,chartSequence=0,chartData=null,returnY=0;
 const rowRequests=new Map();
+let renderCalendar=()=>{};
 const horizon=s=>HORIZONS.includes(horizons[s])?horizons[s]:'1Y';
 const signed=(v,d=2)=>Number.isFinite(v)?`${v>0?'+':''}${new Intl.NumberFormat('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}).format(v)}`:'—';
 function format(value,meta){if(!Number.isFinite(value))return'—';const n=new Intl.NumberFormat('en-US',{minimumFractionDigits:meta.decimals??2,maximumFractionDigits:meta.decimals??2}).format(value);if(meta.unit.startsWith('%'))return`${n}%`;if(meta.unit==='$T')return`$${n}T`;return n;}
@@ -15,10 +17,11 @@ function changeText(d,h){
   return[signed(d.change,d.decimals??2),`${d.unit} · ${h}`];
 }
 async function get(url){const r=await fetch(url,{cache:'no-store'}),j=await r.json();if(!r.ok)throw new Error(j.error||'Macro feed unavailable');return j;}
-function ordered(){const map=new Map(catalog.map(x=>[x.symbol,x]));return [...order.filter(s=>map.has(s)),...catalog.map(x=>x.symbol).filter(s=>!order.includes(s))].map(s=>map.get(s));}
+function ordered(){const rows=catalog.filter(x=>x.kind!=='calendar'),map=new Map(rows.map(x=>[x.symbol,x]));return [...order.filter(s=>map.has(s)),...rows.map(x=>x.symbol).filter(s=>!order.includes(s))].map(s=>map.get(s));}
 function preset(){const unique=[...new Set(catalog.map(x=>horizon(x.symbol)))];return unique.length===1?unique[0]:'Mixed';}
 function render(){
   const list=$('#macroList'); if(!list)return;
+  renderCalendar(data.get('MAC.CALENDAR'),horizon('MAC.CALENDAR'));
   list.innerHTML=ordered().map((m,i,a)=>{
     const d=data.get(m.symbol),h=horizon(m.symbol),valid=d?.horizon===h,err=d?.error,parts=valid?changeText(d,h):['…',h];
     const dir=valid&&!d.noNewObservation?(d.change>0?'positive':d.change<0?'negative':''):'';
@@ -29,8 +32,6 @@ function render(){
   }).join('');
   $('#macroPreset').textContent=`Horizon · ${preset()}`;
   for(const wrap of $$('.macro-mini-chart')){const d=data.get(wrap.dataset.macroMini);if(d?.bars&&d.horizon===horizon(d.symbol))draw(wrap.querySelector('canvas'),d,true);}
-  const errors=[...data.values()].filter(x=>x.error&&!x.bars).length;
-  $('#macroFeedState').textContent=`Latest published observations${errors?` · ${errors} feeds unavailable`:''}`;
 }
 async function loadRow(meta,force=false){
   const h=horizon(meta.symbol),key=`${meta.symbol}|${h}`;
@@ -49,10 +50,10 @@ async function refresh(force=false){
   loading=(async()=>{
     try{
       if(!catalog.length){const j=await get('/api/macro/catalog');catalog=j.series;}
-      render();const queue=[...catalog];
+      render();const queue=[...catalog].sort((a,b)=>Number(b.kind==='calendar')-Number(a.kind==='calendar'));
       await Promise.all(Array.from({length:4},async()=>{while(queue.length)await loadRow(queue.shift(),force);}));
-      loadedAt=Date.now();$('#macroFeedState').textContent=`Updated ${new Intl.DateTimeFormat('en-US',{hour:'numeric',minute:'2-digit'}).format(new Date())} · latest published observations`;
-    }catch(e){$('#macroFeedState').textContent=e.message;}finally{loading=null;}
+      loadedAt=Date.now();
+    }catch(e){$('#macroList').innerHTML=`<p class="muted small macro-calendar-empty">${esc(e.message)}</p>`;}finally{loading=null;}
   })();return loading;
 }
 function setHorizon(symbol,h){horizons[symbol]=h;localStorage.setItem(KEY,JSON.stringify(horizons));render();const m=catalog.find(x=>x.symbol===symbol);if(m)loadRow(m);}
@@ -94,6 +95,7 @@ async function loadChart(){
 function closeChart(){chartSequence++;chartSymbol=null;chartData=null;showPage('macro',false);requestAnimationFrame(()=>scrollTo(0,returnY));}
 export function initMacro(api){
   showPage=api.showPage;showHorizon=api.showHorizon;
+  renderCalendar=initMacroCalendar({onHistory:()=>openChart('MAC.CALENDAR'),onHorizon:button=>showHorizon(button,horizon('MAC.CALENDAR'),'Set MAC.CALENDAR horizon',h=>setHorizon('MAC.CALENDAR',h),HORIZONS)});
   $('#macroPreset').onclick=()=>showHorizon($('#macroPreset'),preset()==='Mixed'?'1Y':preset(),'Set all Macro horizons',h=>{for(const m of catalog)horizons[m.symbol]=h;localStorage.setItem(KEY,JSON.stringify(horizons));render();refresh();},HORIZONS);
   $('#macroList').addEventListener('click',e=>{const row=e.target.closest('[data-macro-symbol]');if(!row)return;const hb=e.target.closest('[data-macro-horizon]');if(hb){e.stopPropagation();const s=hb.dataset.macroHorizon;showHorizon(hb,horizon(s),`Set ${s} horizon`,h=>setHorizon(s,h),HORIZONS);return;}const move=e.target.closest('[data-macro-move]');if(move){e.stopPropagation();const list=ordered().map(x=>x.symbol),i=Number(move.dataset.macroIndex),n=i+Number(move.dataset.macroMove);if(n>=0&&n<list.length){[list[i],list[n]]=[list[n],list[i]];order=list;localStorage.setItem(ORDER_KEY,JSON.stringify(order));render();}return;}openChart(row.dataset.macroSymbol);});
   $('#macroList').addEventListener('keydown',e=>{if(e.target.matches('.macro-row')&&['Enter',' '].includes(e.key)){e.preventDefault();openChart(e.target.dataset.macroSymbol);}});

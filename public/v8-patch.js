@@ -61,5 +61,5 @@ await import('./v8-markets.js?v=prod2');
 await import('./v8-market-sparklines.js?v=prod4');
 await import('./v8-chart.js?v=prod3');
 await import('./v8-multi.js?v=prod3');
-if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js?v=macro1',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js?v=macro2',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 

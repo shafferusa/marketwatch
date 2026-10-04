@@ -1,4 +1,4 @@
-import { initMacro } from './macro.js?v=1';
+import { initMacro } from './macro.js?v=2';
 const VERSION='7.0.0', MAX=60, REFRESH=10000;
 const DEFAULT=['^GSPC','^NDX','^DJI','VTI','MAGS','^VIX','^SKEW','US2Y','US5Y','US10Y','US30Y','2S10S','REAL10Y','MOVE','CL=F','NG=F','GC=F','HG=F','SOFR','BE10Y','DX-Y.NYB','BTC-USD','USDJPY=X','GBPUSD=X','EURUSD=X','AUDUSD=X','USDCNH=X','SMH','XLF','XLE','XAR','XLI','XLV','XLY','XLP','XLC','XLU','XLRE','CIBR','^FTSE','^N225','000300.SS','EEM','ACWI','IGOAS','HYOAS','ES=F','NQ=F','YM=F','NKD=F'];
 const HORIZONS=['CQ','1D','1W','1M','3M','1Y','3Y','5Y'];
@@ -110,7 +110,7 @@ function bind(){
   $('#addForm').onsubmit=e=>{e.preventDefault();const s=clean($('#tickerInput').value);if(!s||symbols.includes(s)){ $('#tickerInput').value='';return }if(symbols.length>=MAX){$('#feedStatus').textContent=`Watchlist limit is ${MAX} symbols.`;return}symbols.push(s);saveSymbols();$('#tickerInput').value='';renderSettings();renderMarkets();fetchMarkets()};
   $('#wakeBtn').onclick=async()=>{try{if(wake){await wake.release();wake=null;$('#wakeBtn').textContent='Keep screen awake'}else{if(!('wakeLock'in navigator))throw new Error('Screen Wake Lock is not supported in this browser.');wake=await navigator.wakeLock.request('screen');$('#wakeBtn').textContent='Screen will stay awake';wake.addEventListener('release',()=>{wake=null;$('#wakeBtn').textContent='Keep screen awake'})}}catch(e){$('#wakeBtn').textContent=e.message}};
   $$('[data-intel-refresh]').forEach(b=>b.onclick=()=>loadIntelligence(true).then(renderIntel).catch(showIntelError));
-  document.addEventListener('click',e=>{if(!e.target.closest('#horizonPopover,[data-market-horizon],[data-mv-horizon],#marketPreset,#multiPreset,[data-macro-horizon],#macroPreset'))hideHorizon();if(!e.target.closest('.global-search-shell,#globalSearchResults'))hideSearchResults();if(!e.target.closest('.mv-symbol-input,#panelSearchResults'))hidePanelSearch()});
+  document.addEventListener('click',e=>{if(!e.target.closest('#horizonPopover,[data-market-horizon],[data-mv-horizon],#marketPreset,#multiPreset,[data-macro-horizon],#macroPreset,[data-calendar-horizon]'))hideHorizon();if(!e.target.closest('.global-search-shell,#globalSearchResults'))hideSearchResults();if(!e.target.closest('.mv-symbol-input,#panelSearchResults'))hidePanelSearch()});
   window.addEventListener('resize',()=>{hideHorizon();hideSearchResults();hidePanelSearch();if(currentPage==='chart')drawLine($('#chartCanvas'),chartBars,chartMeta,false,chartPointer);if(currentPage==='multiview')mvSymbols.forEach((_,i)=>loadMultiPanel(i,true))});
   window.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#settingsPanel').classList.contains('hidden'))$('#settingsPanel').classList.add('hidden');else if(currentPage==='chart')closeChart()}});
   window.addEventListener('popstate',()=>{const p=(location.hash||'#markets').slice(1);showPage(['markets','multiview','macro','newspaper','learning'].includes(p)?p:'markets',false)});
@@ -119,4 +119,3 @@ function bind(){
 async function init(){bind();setClock();setInterval(setClock,1000);renderMarkets();fetchMarkets();marketTimer=setInterval(fetchMarkets,REFRESH);loadIntelligence().then(renderIntel).catch(showIntelError);try{const j=await fetchJson('/api/version');$('#buildVersion').textContent=`v${j.version||VERSION}`}catch{}const p=(location.hash||'#markets').slice(1);showPage(['markets','multiview','macro','newspaper','learning'].includes(p)?p:'markets',false);if('serviceWorker'in navigator)navigator.serviceWorker.register(`/sw.js?v=${VERSION}`,{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{})}
 initMacro({showPage,showHorizon});
 init();
-

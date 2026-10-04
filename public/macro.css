@@ -2,12 +2,38 @@
 #macroPage>.status-row{display:flex;justify-content:flex-start;align-items:center;min-height:31px;margin:0 0 6px;padding:0 0 0 4px}
 #macroPage .market-tools{display:flex;align-items:center;gap:8px}
 #macroPreset{margin:0;position:relative;z-index:3}
-#macroFeedState{font-size:10px}
 .macro-symbol{display:flex;align-items:center;width:min(138px,100%);height:35px;padding:0 10px;font-size:clamp(18px,2.4vw,24px);letter-spacing:-.025em;border:1px solid rgba(138,180,255,.20);background:linear-gradient(180deg,rgba(138,180,255,.055),rgba(255,255,255,.018));color:var(--text);border-radius:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
 .macro-symbol-long{font-size:18px}
 #macroList .macro-name{font-weight:650}
 #macroList .macro-description{white-space:normal;font-size:10px;line-height:1.3;max-width:170px}
 #macroList .macro-row{min-height:104px}
+#macroCalendar{margin-bottom:16px}
+.macro-calendar-top,.macro-calendar-toolbar,.macro-calendar-agenda-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.macro-calendar-top{padding:16px 20px 12px}
+.macro-calendar-title{font-size:18px;letter-spacing:-.025em;margin:0 0 5px;font-weight:750}
+.macro-calendar-top .small{font-size:10px}
+.macro-calendar-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.macro-calendar-toolbar{padding:0 20px 12px;font-size:13px}
+.macro-calendar-weekdays,.macro-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.macro-calendar-weekdays{border-top:1px solid var(--border);color:var(--muted);font-size:9px;letter-spacing:.04em;text-align:center;padding:8px 0}
+.macro-calendar-day{min-height:76px;min-width:0;display:flex;flex-direction:column;align-items:stretch;text-align:left;padding:7px 8px;gap:3px;border:0;border-top:1px solid var(--border);border-right:1px solid var(--border);background:transparent;color:var(--text);font-family:inherit;cursor:pointer}
+.macro-calendar-day:nth-child(7n){border-right:0}
+.macro-calendar-day:hover{background:rgba(138,180,255,.055)}
+.macro-calendar-day.outside{background:rgba(0,0,0,.12);color:var(--muted)}
+.macro-calendar-day.selected{background:rgba(138,180,255,.08);box-shadow:inset 0 0 0 1px rgba(138,180,255,.45)}
+.macro-calendar-number{align-self:flex-start;min-width:19px;min-height:19px;display:grid;place-items:center;font-size:10px;font-weight:750;border-radius:6px}
+.macro-calendar-day.today .macro-calendar-number{background:rgba(138,180,255,.2);color:#c7dcff}
+.macro-calendar-release{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:3px 5px;border-radius:5px;background:rgba(138,180,255,.075);color:#cbd3df;line-height:1.25}
+.macro-calendar-time{color:var(--muted);font-size:8px;margin-right:5px}
+.macro-calendar-more{font-size:9px;color:var(--muted)}
+.macro-calendar-agenda{border-top:1px solid var(--border)}
+.macro-calendar-agenda-head{padding:12px 20px;font-size:11px}
+.macro-calendar-agenda>div[aria-live]{max-height:168px;overflow:auto;scrollbar-width:thin}
+.macro-calendar-agenda-event{display:grid;grid-template-columns:155px minmax(0,1fr) 35px;gap:12px;align-items:center;padding:10px 20px;border-top:1px solid var(--border);font-size:11px;line-height:1.4}
+.macro-calendar-agenda-time{display:block;font-size:9px;margin-top:2px}
+.macro-calendar-empty{padding:0 20px 12px;margin:0;line-height:1.5}
+.macro-calendar-day:focus-visible{outline:2px solid rgba(138,180,255,.65);outline-offset:-2px}
+@media(max-width:640px){.macro-calendar-top{padding:12px;align-items:flex-start}.macro-calendar-top .small{max-width:190px;line-height:1.4}.macro-calendar-toolbar{padding:0 12px 10px}.macro-calendar-day{padding:5px 3px;min-height:72px}.macro-calendar-release{padding:3px 2px;font-size:8px}.macro-calendar-time{display:none}.macro-calendar-agenda-head{padding:10px 12px}.macro-calendar-agenda-event{grid-template-columns:92px minmax(0,1fr) 25px;gap:6px;padding:10px 12px;font-size:10px}.macro-calendar-top .horizon-button{min-width:38px;padding:0 7px}}
 .macro-value{font-size:clamp(18px,2.4vw,24px)}
 .macro-value .change-detail{font-size:9px;font-weight:500}
 .macro-date{margin-top:2px}
@@ -20,4 +46,4 @@ body[data-page="macrochart"] .chart-page{padding-top:2px}
 .macro-calendar-heading{margin:10px 4px}
 .macro-event{display:grid;grid-template-columns:160px minmax(0,1fr) 40px;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);font-size:12px;line-height:1.5}
 .macro-event:last-child{border-bottom:0}
-@media(max-width:640px){#macroFeedState{display:none}#macroList .macro-description{max-width:150px}#macroList .macro-row{min-height:124px}#macroList .macro-name{white-space:normal}#macroChartFeed{line-height:1.5;font-size:10px}.macro-event{grid-template-columns:1fr;padding:12px 14px;gap:3px}}
+@media(max-width:640px){#macroList .macro-description{max-width:150px}#macroList .macro-row{min-height:124px}#macroList .macro-name{white-space:normal}#macroChartFeed{line-height:1.5;font-size:10px}.macro-event{grid-template-columns:1fr;padding:12px 14px;gap:3px}}

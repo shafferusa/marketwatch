@@ -2,6 +2,20 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseCSV, transformRows, windowRows, parseICS, registerMacro } from './macro-api.js';
 import { MACRO_SERIES } from './macro-series.js';
+import { calendarEvent, monthDays } from './public/macro-calendar.js';
+
+test('Calendar converts UTC releases to Eastern time and the correct date across DST',()=>{
+  const summer=calendarEvent({date:'2026-10-09',time:'00:30',timezone:'UTC',title:'Release'});
+  assert.equal(summer.date,'2026-10-08');assert.equal(summer.time,'20:30');assert.equal(summer.timeLabel,'8:30 PM ET');
+  const winter=calendarEvent({date:'2026-12-04',time:'13:30',timezone:'UTC',title:'Release'});
+  assert.equal(winter.date,'2026-12-04');assert.equal(winter.time,'08:30');
+  assert.equal(calendarEvent({date:'2026-10-09',time:'08:30',timezone:'America/New_York'}).timeLabel,'08:30 ET');
+});
+test('Calendar lays out complete weeks, including leap February and six-week months',()=>{
+  const leap=monthDays(new Date('2024-02-01T12:00:00Z'));
+  assert.equal(leap.length%7,0);assert.equal(leap.filter(x=>!x.outside).length,29);assert.equal(new Date(leap[0].date+'T12:00:00Z').getUTCDay(),0);
+  assert.equal(monthDays(new Date('2026-08-01T12:00:00Z')).length,42);
+});
 
 test('CSV preserves zero and negative observations and skips missing values',()=>{
   assert.deepEqual(parseCSV('observation_date,X\n2025-01-01,0\n2025-01-02,.\n2025-01-03,-1.5\n2025-01-04,\n'),[{date:'2025-01-01',value:0},{date:'2025-01-03',value:-1.5}]);
