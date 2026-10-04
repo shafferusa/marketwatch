@@ -26,7 +26,7 @@ $('#chartBack')?.addEventListener('click',()=>{window.__shafferChartCanonical=nu
 $$('.terminal-tab').forEach(t=>t.addEventListener('click',()=>{origin=null;window.__shafferChartCanonical=null;document.body.classList.remove('search-chart');clearSearch()}));
 
 const PAGES=['markets','multiview','newspaper','learning'];
-window.addEventListener('keydown',e=>{const tag=e.target?.tagName?.toLowerCase(),typing=tag==='input'||tag==='textarea'||e.target?.isContentEditable;if(typing)return;if(e.key==='ArrowUp'){e.preventDefault();globalInput?.focus({preventScroll:true});globalInput?.select?.();return}if(e.key==='ArrowDown')return;if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;const p=document.body.dataset.page;if(!PAGES.includes(p))return;e.preventDefault();const i=PAGES.indexOf(p),n=(i+(e.key==='ArrowRight'?1:-1)+PAGES.length)%PAGES.length;$(`.terminal-tab[data-page="${PAGES[n]}"]`)?.click()},{capture:true});
+window.addEventListener('keydown',e=>{const tag=e.target?.tagName?.toLowerCase(),typing=tag==='input'||tag==='textarea'||e.target?.isContentEditable;if(typing)return;if(e.key==='ArrowUp'){e.preventDefault();globalInput?.focus({preventScroll:true});globalInput?.select?.();return}if(e.key==='ArrowDown')return;if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;const p=document.body.dataset.page;if(!PAGES.includes(p))return;e.preventDefault();const i=PAGES.indexOf(p),n=(i+(e.key==='ArrowRight'?1:-1)+PAGES.length)%PAGES.length,tab=$(`.terminal-tab[data-page="${PAGES[n]}"]`);tab?.click();requestAnimationFrame(()=>tab?.blur())},{capture:true});
 
 function commaPercentNode(root){if(!root)return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=walker.nextNode())){const old=n.nodeValue,next=old.replace(/([+-]?)(\d{4,})(\.\d+)?(?=\s*%)/g,(_,sg,int,dec)=>`${sg}${Number(int).toLocaleString('en-US')}${dec||''}`);if(next!==old)n.nodeValue=next}}
 function commaAll(){document.querySelectorAll('.change,.chart-change,.mv-change').forEach(commaPercentNode)}
@@ -37,6 +37,7 @@ new MutationObserver(()=>{normalizeTitle();if(document.body.dataset.page==='char
 addEventListener('resize',fitChart);addEventListener('orientationchange',()=>setTimeout(fitChart,120));
 
 await import('./v8-markets.js?v=8.0.2');
+await import('./v8-market-sparklines.js?v=8.0.2');
 await import('./v8-chart.js?v=8.0.2');
 await import('./v8-multi.js?v=8.0.2');
 if('serviceWorker'in navigator)navigator.serviceWorker.register(`/sw.js?v=${VERSION}`,{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
