@@ -1,5 +1,5 @@
-const CACHE = 'shaffer-terminal-shell-v8-0-2';
-const SHELL = ['/', '/v7.css?v=7.0.0', '/v8.css?v=8.0.2', '/v7.js?v=7.0.0', '/v8-patch.js?v=8.0.2', '/v8-markets.js?v=8.0.2', '/v8-chart.js?v=8.0.2', '/v8-multi.js?v=8.0.2', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
+const CACHE = 'shaffer-terminal-shell-prod-1';
+const SHELL = ['/', '/v7.css?v=7.0.0', '/v8.css?v=8.0.2', '/prod.css?v=prod1', '/v7.js?v=7.0.0', '/v8-patch.js?v=prod1', '/v8-markets.js?v=8.0.2', '/v8-chart.js?v=8.0.2', '/v8-multi.js?v=8.0.2', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)));
