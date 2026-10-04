@@ -1,4 +1,3 @@
-const VERSION='8.0.2';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 
 function normalizeTitle(){const t=$('#pageTitle')?.textContent?.trim()||'Markets';if(document.title!==t)document.title=t}
@@ -50,6 +49,8 @@ function fitChart(){if(document.body.dataset.page!=='chart')return;const card=$(
 new MutationObserver(()=>{normalizeTitle();if(document.body.dataset.page==='chart')setTimeout(fitChart,20)}).observe(document.body,{attributes:true,attributeFilter:['data-page']});
 addEventListener('resize',fitChart);addEventListener('orientationchange',()=>setTimeout(fitChart,120));
 
+const weekButton=$('#rangeBar .range[data-range="5D"]');if(weekButton){weekButton.textContent='1W';weekButton.setAttribute('aria-label','1 week')}
+
 // v7 already renders the Markets board from one batched quote request. Mark those rows current
 // before the v8 editor enhancer starts so it does not immediately repeat one quote call per row.
 function primeMarketRows(){let hs={};try{hs=JSON.parse(localStorage.getItem('tablet-market-watcher-horizons-v6')||'{}')||{}}catch{}$$('#watchlist .watch-row').forEach(row=>{const s=row.dataset.symbol;if(s)row.dataset.paintedSymbol=`${s}|${hs[s]||'1D'}`})}
@@ -57,6 +58,6 @@ primeMarketRows();
 
 await import('./v8-markets.js?v=prod2');
 await import('./v8-market-sparklines.js?v=prod2');
-await import('./v8-chart.js?v=8.0.2');
-await import('./v8-multi.js?v=8.0.2');
-if('serviceWorker'in navigator)navigator.serviceWorker.register(`/sw.js?v=prod2`,{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+await import('./v8-chart.js?v=prod3');
+await import('./v8-multi.js?v=prod3');
+if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js?v=prod3',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
