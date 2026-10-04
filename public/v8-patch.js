@@ -1,10 +1,6 @@
 const VERSION='8.0.2';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 
-function forceVersion(){const el=$('#buildVersion');if(el&&el.textContent!==`v${VERSION}`)el.textContent=`v${VERSION}`}
-forceVersion();
-if($('#buildVersion'))new MutationObserver(forceVersion).observe($('#buildVersion'),{childList:true,characterData:true,subtree:true});
-
 function normalizeTitle(){const t=$('#pageTitle')?.textContent?.trim()||'Markets';if(document.title!==t)document.title=t}
 normalizeTitle();
 if($('#pageTitle'))new MutationObserver(normalizeTitle).observe($('#pageTitle'),{childList:true,characterData:true,subtree:true});
