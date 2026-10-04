@@ -1,7 +1,7 @@
 {
-  "name": "Shaffer Terminal",
-  "short_name": "Shaffer",
-  "description": "Shaffer multi-asset market terminal.",
+  "name": "Shaffer Application",
+  "short_name": "Shaffer App",
+  "description": "Shaffer multi-asset markets application.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0b0d12",
